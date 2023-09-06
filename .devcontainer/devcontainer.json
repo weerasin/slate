@@ -22,10 +22,12 @@
 	"customizations": {
         "vscode": {
             "extensions": [
-                "Elmtooling.elm-ls-vscode"
-            ]
+				"Elmtooling.elm-ls-vscode",
+				"GitHub.copilot"
+			]
         }
-    }
+    },
+	"postCreateCommand": "npm install -g elm elm-test elm-format"
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
