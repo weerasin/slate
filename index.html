@@ -1,24 +1,63 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <!-- Add title -->
-        <title>My Checklist</title>
-        <!-- Add bootstrap-->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    </head>
-    <body>
-        <!-- Add padding to header -->
-        <header class="">
-            <h1>Checklist</h1>
-        </header>
-        <!-- Add main content -->
-        <main>
-            <h2>Checklist</h2>
-            <p>Checklist</p>
-        </main>
-        <!-- Add footer -->
-        <footer>
-            <p>Checklist</p>
-        </footer>
-    </body>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mike's Checklist</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <!-- Add font awesome fonts-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+</head>
+
+<body>
+  <section class="section">
+    <div class="tile is-parent">
+      <article class="tile is-child is-3">
+        <p class="title is-3">FDX5581</p>
+      </article>
+      <article class="tile is-child is-3">
+        <p class="title is-3">KMEM</p>
+      </article>
+      <article class="tile is-child is-3">
+        <p class="title is-3">KBOS</p>
+      </article>
+      <article class="tile is-child is-3">
+        <p class="title is-4">1845Z</p>
+        <p class="title is-5">T-17</p>
+      </article>
+    </div> <!-- end of tile ancestor -->
+  </section>
+
+  <section class="section">
+    <article class="panel">
+      <p class="panel-heading">
+        Fuel
+      </p>
+      <div class="panel-block">
+        <table class="table is-fullwidth">
+          <thead>
+            <tr>
+              <th>Requested Fuel</th>
+              <th>FOD</th>
+              <th>Alternate + RSV Fuel</th>
+              <th>Extra Fuel</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>10000</td>
+              <td>1000</td>
+              <td>2000</td>
+              <td>1000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+
+</body>
+
 </html>
