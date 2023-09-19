@@ -1,0 +1,3 @@
+#!/usr/bin/sh
+
+elm make --debug src/CheckList.elm --output=app.js

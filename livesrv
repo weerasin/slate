@@ -1,0 +1,3 @@
+#!/usr/bin/sh
+
+elm-live src/CheckList.elm --open --start-page=index.html -- --output=app.js
