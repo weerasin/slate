@@ -2,6 +2,7 @@ module CheckList exposing (main)
 
 import Browser
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 
 
@@ -16,12 +17,29 @@ initialModel =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ button [ onClick Decrement ] [ text "-" ]
-        , text (String.fromInt model)
-        , button [ onClick Increment ] [ text "+" ]
+    section [ class "section"][
+        div [ class "columns"][
+          viewHeaderCard "FDX5881"
+        , viewHeaderCard "KMEM"
+        , viewHeaderCard "KBOS"
+        , viewClockCard "1845"
         ]
+    ]
 
+
+viewClockCard : String -> Html Msg
+viewClockCard time =
+    div [ class "column"][
+        p [ class "title"] [ text <| time ++ " Z"]
+    ,   p [ class "title"] [ text "T - xx"]
+    ]
+
+viewHeaderCard : String -> Html Msg
+viewHeaderCard title =
+    div [ class "column"][
+        p [ class "title"] [ text title]
+    ]
+    
 
 type Msg
     = Increment
