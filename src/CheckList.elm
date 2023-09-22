@@ -5,7 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode as DE exposing (Decoder, Error(..), decodeString, list, string)
+import Json.Decode as DE exposing (Decoder, Error(..),  string)
 
 
 type alias Model =

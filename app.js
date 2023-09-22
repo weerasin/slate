@@ -6153,7 +6153,7 @@ var $elm$http$Http$get = function (r) {
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$CheckList$nicknamesDecoder = $elm$json$Json$Decode$list($elm$json$Json$Decode$string);
-var $author$project$CheckList$url = 'http://localhost:8080/data.json';
+var $author$project$CheckList$url = 'https://weerasin.github.io/slate/data.json';
 var $author$project$CheckList$getNicknames = $elm$http$Http$get(
 	{
 		expect: A2($elm$http$Http$expectJson, $author$project$CheckList$DataReceived, $author$project$CheckList$nicknamesDecoder),
