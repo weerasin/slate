@@ -4,71 +4,56 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Http
-import Json.Decode as DE exposing (Decoder, Error(..),  string)
 
 
 type alias Model =
-    { nicknames : List String
-    , errorMessage : Maybe String
+    { 
+        flightNumber : String
+        , departureAirport : String
+        , arrivalAirport : String
+        , isEditorVisible : Bool
+        , departureTime : String
+        , gate : String
     }
 
 
-url : String
-url =
-    "https://weerasin.github.io/slate/data.json"
--- url =
---     "http://localhost:8080/data.json"
-
 view : Model -> Html Msg
 view model =
+    div[][ 
+        viewHeaderEdit model
+        , viewCardSection model
+    ]
+
+
+viewHeaderEdit :Model -> Html Msg
+viewHeaderEdit model = 
+    nav[ class "panel" 
+        , classList [ ("is-hidden", model.isEditorVisible == False)]
+    ] [ 
+       div [ class "panel-heading" , onClick HideEditor] [ 
+            p [ class "panel-title"] [ text "Edit Heading" ]
+       ]
+       , div [ class "panel-block"] [
+           input [ class "input", type_ "text", placeholder "Flight Number", onInput UpdateFlightNumber] []
+           , input [ class "input", type_ "text", placeholder "Departure Airport", onInput UpdateDepartureAirport] []
+           , input [ class "input", type_ "text", placeholder "Arrival Airport", onInput UpdateArrivalAirport ] []
+           , input [ class "input", type_ "text", placeholder "Departure Time", onInput UpdateDepartureTime ] []
+           , input [ class "input", type_ "text", placeholder "Gate", onInput UpdateGate ] []
+       ]
+    ]
+
+
+viewCardSection : Model -> Html Msg
+viewCardSection model =
     section [ class "section"][
         div [ class "columns"][
-          viewHeaderCard "FDX5881"
-        , viewHeaderCard "KMEM"
-        , viewHeaderCard "KBOS"
-        , viewClockCard "1845"
-        ]
-        , div [][
-            button [ onClick SendHttpRequest ]
-            [ text "Get data from server" ] 
-        , viewNicknamesOrError model   
-        ]
+          viewHeaderCard ("FDX" ++ model.flightNumber) <| model.gate
+        , viewLinkCard <| model.departureAirport
+        , viewLinkCard <| model.arrivalAirport
+        , viewClockCard  <| model.departureTime
+        ] 
     ]
     
-viewNicknamesOrError : Model -> Html Msg
-viewNicknamesOrError model =
-    case model.errorMessage of
-        Just message ->
-            viewError message
-
-        Nothing ->
-            viewNicknames model.nicknames
-
-
-viewError : String -> Html Msg
-viewError errorMessage =
-    let
-        errorHeading =
-            "Couldn't fetch nicknames at this time."
-    in
-    div []
-        [ h3 [] [ text errorHeading ]
-        , text ("Error: " ++ errorMessage)
-        ]
-
-
-viewNicknames : List String -> Html Msg
-viewNicknames nicknames =
-    div []
-        [ h3 [] [ text "Old School Main Characters" ]
-        , ul [] (List.map viewNickname nicknames)
-        ]
-
-
-viewNickname : String -> Html Msg
-viewNickname nickname =
-    li [] [ text nickname ]
 
 viewClockCard : String -> Html Msg
 viewClockCard time =
@@ -77,72 +62,66 @@ viewClockCard time =
     ,   p [ class "title"] [ text "T - xx"]
     ]
 
-viewHeaderCard : String -> Html Msg
-viewHeaderCard title =
+viewHeaderCard : String -> String -> Html Msg
+viewHeaderCard title gate =
     div [ class "column"][
-        p [ class "title"] [ text title]
+        p [ class "title", onClick ShowEditor] [ text title]
+        , p [ class "subtitle", onClick ShowEditor] [ text ("Gate: " ++ gate)]
     ]
-    
+
+viewLinkCard : String -> Html Msg
+viewLinkCard title =
+    let
+        linkUrl = "https://www.aviationweather.gov/taf/board?ids=" ++ title ++ "&date=&submit=Goto+TAF+board"
+    in
+    div [ class "column"][
+        a [ class "title", href linkUrl, target "_blank" ] [ text title]
+    ]
 
 type Msg
-    = SendHttpRequest
-    | DataReceived (Result Http.Error (List String))
+   = ShowEditor
+   | HideEditor
+   | UpdateFlightNumber String
+   | UpdateDepartureAirport String
+   | UpdateArrivalAirport String
+   | UpdateDepartureTime String
+   | UpdateGate String
 
 
-getNicknames : Cmd Msg
-getNicknames =
-    Http.get
-        { url = url
-        , expect = Http.expectJson DataReceived nicknamesDecoder
-        }
 
-
-nicknamesDecoder : Decoder (List String)
-nicknamesDecoder =
-    DE.list string
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SendHttpRequest ->
-            ( model, getNicknames )
+        ShowEditor ->
+            ({ model| isEditorVisible = True } , Cmd.none )
+        HideEditor ->
+            ({ model| isEditorVisible = False } , Cmd.none )
+        UpdateFlightNumber flightNumber ->
+            ({ model| flightNumber = flightNumber } , Cmd.none )
+        UpdateDepartureAirport departureAirport ->
+            ({ model| departureAirport = String.toUpper departureAirport } , Cmd.none )
+        UpdateArrivalAirport arrivalAirport ->
+            ({ model| arrivalAirport = String.toUpper arrivalAirport } , Cmd.none )
+        UpdateDepartureTime departureTime ->
+            ({ model| departureTime = departureTime } , Cmd.none )
+        UpdateGate gate ->
+            ({ model| gate = gate } , Cmd.none )
 
-        DataReceived (Ok nicknames) ->
-            ( { model | nicknames = nicknames }, Cmd.none )
-
-        DataReceived (Err httpError) ->
-            ( { model
-                | errorMessage = Just (buildErrorMessage httpError)
-              }
-            , Cmd.none
-            )
-
-
-buildErrorMessage : Http.Error -> String
-buildErrorMessage httpError =
-    case httpError of
-        Http.BadUrl message ->
-            message
-
-        Http.Timeout ->
-            "Server is taking too long to respond. Please try again later."
-
-        Http.NetworkError ->
-            "Unable to reach server."
-
-        Http.BadStatus statusCode ->
-            "Request failed with status code: " ++ String.fromInt statusCode
-
-        Http.BadBody message ->
-            message
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { nicknames = []
-      , errorMessage = Nothing
-      }
+    ( 
+      {
+        flightNumber = "0000"
+        , departureAirport = "KMEM"
+        , arrivalAirport = "KBOS"
+        , isEditorVisible = False
+        , departureTime = "1730"
+        , gate = "UNKN"
+      }  
     , Cmd.none
     )
 
