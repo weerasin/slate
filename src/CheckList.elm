@@ -4,6 +4,7 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Time
 --import Json.Decode exposing (bool)
 
 
@@ -17,6 +18,7 @@ type alias Model =
         , depatureTotalMinutes : Int
         , departureIsNextUTCDay : Bool
         , gate : String
+        , time : Time.Posix
     }
 
 
@@ -62,20 +64,29 @@ viewCardSection model =
           viewHeaderCard ("FDX" ++ model.flightNumber) <| model.gate
         , viewLinkCard <| model.departureAirport
         , viewLinkCard <| model.arrivalAirport
-        , viewClockCard  (model.departureTime |> getTimeString) model.departureIsNextUTCDay
+        , viewClockCard  model
         ] 
     ]
     
 
-viewClockCard : String -> Bool -> Html Msg
-viewClockCard time isNextDay =
+viewClockCard : Model -> Html Msg
+viewClockCard model =
+    let
+        --time = model.departureTime |> getTimeString
+        timeToDeparture = getTimeToDeparture model.time model.depatureTotalMinutes model.departureIsNextUTCDay
+        timeString = if model.departureIsNextUTCDay then
+            (model.departureTime |> getTimeString) ++ " Z +1"
+            else
+                (model.departureTime |> getTimeString) ++ " Z"
+    in
     div [ class "column"][
-        if isNextDay then
-            p [ class "title"] [ text <| time ++ "Z +1"]
+        if timeToDeparture <= 0 then
+            p [ class "title", style "color" "green"] [ text ("T " ++ String.fromInt timeToDeparture )]
         else
-            p [ class "title"] [ text <| time ++ "Z"] 
-        ,p [ class "title"] [ text "T - xx"]
+            p [ class "title", style "color" "red"] [ text ("T+" ++ String.fromInt timeToDeparture )]
+        ,p [ class "subtitle"] [ text timeString]   
     ]
+
 
 viewHeaderCard : String -> String -> Html Msg
 viewHeaderCard title gate =
@@ -102,6 +113,7 @@ type Msg
    | UpdateDepartureTime String
    | UpdateGate String
    | UpdateDepartureIsNextUTCDay Bool 
+   | Tick Time.Posix
 
 
 
@@ -128,6 +140,8 @@ update msg model =
             ({ model| gate = gate } , Cmd.none )
         UpdateDepartureIsNextUTCDay isNextDay ->
             ({ model| departureIsNextUTCDay = isNextDay  } , Cmd.none )
+        Tick time ->
+            ({ model| time = time } , Cmd.none )
 
 
 
@@ -137,15 +151,20 @@ init _ =
       {
         flightNumber = "0000"
         , departureAirport = "KMEM"
-        , arrivalAirport = "KBOS"
+        , arrivalAirport = "KMEM"
         , isEditorVisible = False
         , departureTime = (0,0)
         , depatureTotalMinutes = 0
         , departureIsNextUTCDay = False
         , gate = "UNKN"
+        , time = Time.millisToPosix 0
       }  
     , Cmd.none
     )
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+  Time.every (30*1000) Tick
 
 
 main : Program () Model Msg
@@ -154,7 +173,7 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = subscriptions
         }
 
 
@@ -227,3 +246,16 @@ getTotalMinutes (hour, minute) =
 getTimeString : (Int, Int) -> String    
 getTimeString (hour, minute) =
     String.padLeft 2 '0' (String.fromInt hour) ++ String.padLeft 2 '0' (String.fromInt minute)
+
+
+getTimeToDeparture : Time.Posix -> Int -> Bool -> Int
+getTimeToDeparture currentTime departureTime isNextDay = 
+    let
+        h  = Time.toHour   Time.utc currentTime
+        m =  Time.toMinute Time.utc currentTime
+        currentTotalMinutes = getTotalMinutes (h, m)
+    in
+        if isNextDay then
+            currentTotalMinutes - (1440 + departureTime)  
+        else
+            currentTotalMinutes - departureTime
