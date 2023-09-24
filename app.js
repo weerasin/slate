@@ -4370,6 +4370,43 @@ function _Browser_load(url)
 		}
 	}));
 }
+
+
+
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5163,11 +5200,96 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$CheckList$init = function (_v0) {
 	return _Utils_Tuple2(
-		{arrivalAirport: 'KBOS', departureAirport: 'KMEM', departureTime: '1730', flightNumber: '0000', gate: 'UNKN', isEditorVisible: false},
+		{
+			arrivalAirport: 'KBOS',
+			departureAirport: 'KMEM',
+			departureIsNextUTCDay: false,
+			departureTime: _Utils_Tuple2(0, 0),
+			depatureTotalMinutes: 0,
+			flightNumber: '0000',
+			gate: 'UNKN',
+			isEditorVisible: false
+		},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $author$project$CheckList$getTotalMinutes = function (_v0) {
+	var hour = _v0.a;
+	var minute = _v0.b;
+	return (hour * 60) + minute;
+};
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$CheckList$validateMaxVal = F2(
+	function (maxVal, value) {
+		return (_Utils_cmp(value, maxVal) < 1) ? $elm$core$Maybe$Just(value) : $elm$core$Maybe$Nothing;
+	});
+var $author$project$CheckList$validateHour = function (value) {
+	return A2($author$project$CheckList$validateMaxVal, 23, value);
+};
+var $author$project$CheckList$getHour = function (value) {
+	return A2(
+		$elm$core$Maybe$andThen,
+		$author$project$CheckList$validateHour,
+		$elm$core$String$toInt(
+			A2($elm$core$String$left, 2, value)));
+};
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$String$right = F2(
+	function (n, string) {
+		return (n < 1) ? '' : A3(
+			$elm$core$String$slice,
+			-n,
+			$elm$core$String$length(string),
+			string);
+	});
+var $author$project$CheckList$validateMinute = function (value) {
+	return A2($author$project$CheckList$validateMaxVal, 59, value);
+};
+var $author$project$CheckList$getMinute = function (value) {
+	return A2(
+		$elm$core$Maybe$andThen,
+		$author$project$CheckList$validateMinute,
+		$elm$core$String$toInt(
+			A2($elm$core$String$right, 2, value)));
+};
+var $author$project$CheckList$validateLength = F2(
+	function (length, value) {
+		return _Utils_eq(
+			$elm$core$String$length(value),
+			length) ? $elm$core$Maybe$Just(value) : $elm$core$Maybe$Nothing;
+	});
+var $author$project$CheckList$validateTimeLength = function (value) {
+	return A2($author$project$CheckList$validateLength, 4, value);
+};
+var $author$project$CheckList$getValidTime = function (value) {
+	var _v0 = $author$project$CheckList$validateTimeLength(value);
+	if (_v0.$ === 'Just') {
+		var validTime = _v0.a;
+		var _v1 = _Utils_Tuple2(
+			$author$project$CheckList$getHour(validTime),
+			$author$project$CheckList$getMinute(validTime));
+		if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
+			var h = _v1.a.a;
+			var m = _v1.b.a;
+			return _Utils_Tuple2(h, m);
+		} else {
+			return _Utils_Tuple2(0, 0);
+		}
+	} else {
+		return _Utils_Tuple2(0, 0);
+	}
+};
 var $elm$core$String$toUpper = _String_toUpper;
 var $author$project$CheckList$update = F2(
 	function (msg, model) {
@@ -5214,14 +5336,25 @@ var $author$project$CheckList$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{departureTime: departureTime}),
+						{
+							departureTime: $author$project$CheckList$getValidTime(departureTime),
+							depatureTotalMinutes: $author$project$CheckList$getTotalMinutes(
+								$author$project$CheckList$getValidTime(departureTime))
+						}),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'UpdateGate':
 				var gate = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{gate: gate}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				var isNextDay = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{departureIsNextUTCDay: isNextDay}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -5235,41 +5368,93 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
+var $elm$core$String$repeatHelp = F3(
+	function (n, chunk, result) {
+		return (n <= 0) ? result : A3(
+			$elm$core$String$repeatHelp,
+			n >> 1,
+			_Utils_ap(chunk, chunk),
+			(!(n & 1)) ? result : _Utils_ap(result, chunk));
+	});
+var $elm$core$String$repeat = F2(
+	function (n, chunk) {
+		return A3($elm$core$String$repeatHelp, n, chunk, '');
+	});
+var $elm$core$String$padLeft = F3(
+	function (n, _char, string) {
+		return _Utils_ap(
+			A2(
+				$elm$core$String$repeat,
+				n - $elm$core$String$length(string),
+				$elm$core$String$fromChar(_char)),
+			string);
+	});
+var $author$project$CheckList$getTimeString = function (_v0) {
+	var hour = _v0.a;
+	var minute = _v0.b;
+	return _Utils_ap(
+		A3(
+			$elm$core$String$padLeft,
+			2,
+			_Utils_chr('0'),
+			$elm$core$String$fromInt(hour)),
+		A3(
+			$elm$core$String$padLeft,
+			2,
+			_Utils_chr('0'),
+			$elm$core$String$fromInt(minute)));
+};
 var $elm$html$Html$section = _VirtualDom_node('section');
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$CheckList$viewClockCard = function (time) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('column')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$p,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('title')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(time + ' Z')
-					])),
-				A2(
-				$elm$html$Html$p,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('title')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('T - xx')
-					]))
-			]));
-};
+var $author$project$CheckList$viewClockCard = F2(
+	function (time, isNextDay) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('column')
+				]),
+			_List_fromArray(
+				[
+					isNextDay ? A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('title')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(time + 'Z +1')
+						])) : A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('title')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(time + 'Z')
+						])),
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('title')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('T - xx')
+						]))
+				]));
+	});
 var $author$project$CheckList$ShowEditor = {$: 'ShowEditor'};
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -5374,7 +5559,10 @@ var $author$project$CheckList$viewCardSection = function (model) {
 						A2($author$project$CheckList$viewHeaderCard, 'FDX' + model.flightNumber, model.gate),
 						$author$project$CheckList$viewLinkCard(model.departureAirport),
 						$author$project$CheckList$viewLinkCard(model.arrivalAirport),
-						$author$project$CheckList$viewClockCard(model.departureTime)
+						A2(
+						$author$project$CheckList$viewClockCard,
+						$author$project$CheckList$getTimeString(model.departureTime),
+						model.departureIsNextUTCDay)
 					]))
 			]));
 };
@@ -5384,6 +5572,9 @@ var $author$project$CheckList$UpdateArrivalAirport = function (a) {
 };
 var $author$project$CheckList$UpdateDepartureAirport = function (a) {
 	return {$: 'UpdateDepartureAirport', a: a};
+};
+var $author$project$CheckList$UpdateDepartureIsNextUTCDay = function (a) {
+	return {$: 'UpdateDepartureIsNextUTCDay', a: a};
 };
 var $author$project$CheckList$UpdateDepartureTime = function (a) {
 	return {$: 'UpdateDepartureTime', a: a};
@@ -5420,7 +5611,31 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$label = _VirtualDom_node('label');
+var $elm$html$Html$Attributes$maxlength = function (n) {
+	return A2(
+		_VirtualDom_attribute,
+		'maxlength',
+		$elm$core$String$fromInt(n));
+};
 var $elm$html$Html$nav = _VirtualDom_node('nav');
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $elm$html$Html$Events$targetChecked = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'checked']),
+	$elm$json$Json$Decode$bool);
+var $elm$html$Html$Events$onCheck = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'change',
+		A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetChecked));
+};
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -5433,11 +5648,6 @@ var $elm$html$Html$Events$stopPropagationOn = F2(
 			$elm$virtual_dom$VirtualDom$on,
 			event,
 			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
 	});
 var $elm$json$Json$Decode$string = _Json_decodeString;
 var $elm$html$Html$Events$targetValue = A2(
@@ -5533,11 +5743,31 @@ var $author$project$CheckList$viewHeaderEdit = function (model) {
 						_List_fromArray(
 							[
 								$elm$html$Html$Attributes$class('input'),
-								$elm$html$Html$Attributes$type_('text'),
+								$elm$html$Html$Attributes$type_('number'),
+								$elm$html$Html$Attributes$maxlength(4),
 								$elm$html$Html$Attributes$placeholder('Departure Time'),
 								$elm$html$Html$Events$onInput($author$project$CheckList$UpdateDepartureTime)
 							]),
 						_List_Nil),
+						A2(
+						$elm$html$Html$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('checkbox')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(''),
+								A2(
+								$elm$html$Html$input,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('input'),
+										$elm$html$Html$Attributes$type_('checkbox'),
+										$elm$html$Html$Events$onCheck($author$project$CheckList$UpdateDepartureIsNextUTCDay)
+									]),
+								_List_Nil)
+							])),
 						A2(
 						$elm$html$Html$input,
 						_List_fromArray(

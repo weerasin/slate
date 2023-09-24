@@ -1,9 +1,10 @@
-module CheckList exposing (main)
+module CheckList exposing (..)
 
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+--import Json.Decode exposing (bool)
 
 
 type alias Model =
@@ -12,7 +13,9 @@ type alias Model =
         , departureAirport : String
         , arrivalAirport : String
         , isEditorVisible : Bool
-        , departureTime : String
+        , departureTime : (Int, Int)
+        , depatureTotalMinutes : Int
+        , departureIsNextUTCDay : Bool
         , gate : String
     }
 
@@ -37,8 +40,17 @@ viewHeaderEdit model =
            input [ class "input", type_ "text", placeholder "Flight Number", onInput UpdateFlightNumber] []
            , input [ class "input", type_ "text", placeholder "Departure Airport", onInput UpdateDepartureAirport] []
            , input [ class "input", type_ "text", placeholder "Arrival Airport", onInput UpdateArrivalAirport ] []
-           , input [ class "input", type_ "text", placeholder "Departure Time", onInput UpdateDepartureTime ] []
-           , input [ class "input", type_ "text", placeholder "Gate", onInput UpdateGate ] []
+           , input [ 
+            class "input"
+            , type_ "number"
+            , maxlength 4
+            , placeholder "Departure Time"
+            , onInput UpdateDepartureTime ] []
+            , label [ class "checkbox"] [
+                text ""
+                ,input [ class "input", type_ "checkbox", onCheck UpdateDepartureIsNextUTCDay][]
+            ]
+            , input [ class "input", type_ "text", placeholder "Gate", onInput UpdateGate ] []
        ]
     ]
 
@@ -50,16 +62,19 @@ viewCardSection model =
           viewHeaderCard ("FDX" ++ model.flightNumber) <| model.gate
         , viewLinkCard <| model.departureAirport
         , viewLinkCard <| model.arrivalAirport
-        , viewClockCard  <| model.departureTime
+        , viewClockCard  (model.departureTime |> getTimeString) model.departureIsNextUTCDay
         ] 
     ]
     
 
-viewClockCard : String -> Html Msg
-viewClockCard time =
+viewClockCard : String -> Bool -> Html Msg
+viewClockCard time isNextDay =
     div [ class "column"][
-        p [ class "title"] [ text <| time ++ " Z"]
-    ,   p [ class "title"] [ text "T - xx"]
+        if isNextDay then
+            p [ class "title"] [ text <| time ++ "Z +1"]
+        else
+            p [ class "title"] [ text <| time ++ "Z"] 
+        ,p [ class "title"] [ text "T - xx"]
     ]
 
 viewHeaderCard : String -> String -> Html Msg
@@ -86,6 +101,7 @@ type Msg
    | UpdateArrivalAirport String
    | UpdateDepartureTime String
    | UpdateGate String
+   | UpdateDepartureIsNextUTCDay Bool 
 
 
 
@@ -105,9 +121,13 @@ update msg model =
         UpdateArrivalAirport arrivalAirport ->
             ({ model| arrivalAirport = String.toUpper arrivalAirport } , Cmd.none )
         UpdateDepartureTime departureTime ->
-            ({ model| departureTime = departureTime } , Cmd.none )
+            ({ model| departureTime = departureTime |> getValidTime 
+            , depatureTotalMinutes = departureTime |> getValidTime |> getTotalMinutes
+            } , Cmd.none )
         UpdateGate gate ->
             ({ model| gate = gate } , Cmd.none )
+        UpdateDepartureIsNextUTCDay isNextDay ->
+            ({ model| departureIsNextUTCDay = isNextDay  } , Cmd.none )
 
 
 
@@ -119,7 +139,9 @@ init _ =
         , departureAirport = "KMEM"
         , arrivalAirport = "KBOS"
         , isEditorVisible = False
-        , departureTime = "1730"
+        , departureTime = (0,0)
+        , depatureTotalMinutes = 0
+        , departureIsNextUTCDay = False
         , gate = "UNKN"
       }  
     , Cmd.none
@@ -134,3 +156,74 @@ main =
         , update = update
         , subscriptions = \_ -> Sub.none
         }
+
+
+
+-- Utility Functions
+validateTimeLength : String -> Maybe String
+validateTimeLength value =
+    validateLength 4 value
+
+
+validateLength : Int -> String -> Maybe String
+validateLength length value =
+    if String.length value == length then
+        Just value
+    else
+        Nothing
+
+
+validateHour : Int-> Maybe Int
+validateHour value =
+    validateMaxVal 23 value
+
+validateMinute : Int -> Maybe Int
+validateMinute value =
+    validateMaxVal 59 value
+
+
+validateMaxVal : Int -> Int -> Maybe Int
+validateMaxVal maxVal value =
+    if value <= maxVal then
+        Just value
+    else
+        Nothing
+
+
+getHour : String -> Maybe Int
+getHour value =
+    value
+        |> String.left 2
+        |> String.toInt
+        |> Maybe.andThen validateHour
+    
+
+getMinute : String -> Maybe Int 
+getMinute value =
+    value
+        |> String.right 2
+        |> String.toInt
+        |> Maybe.andThen validateMinute
+
+
+getValidTime : String -> (Int, Int)
+getValidTime value =
+    case validateTimeLength value of
+        Just validTime ->
+            case (getHour validTime, getMinute validTime) of
+                (Just h, Just m) ->
+                    (h, m)
+                _ ->
+                    (0, 0)
+        Nothing ->
+            (0, 0)
+   
+
+getTotalMinutes : (Int,Int) -> Int
+getTotalMinutes (hour, minute) =
+    hour * 60 + minute
+
+
+getTimeString : (Int, Int) -> String    
+getTimeString (hour, minute) =
+    String.padLeft 2 '0' (String.fromInt hour) ++ String.padLeft 2 '0' (String.fromInt minute)
