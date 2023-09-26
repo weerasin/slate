@@ -10,15 +10,20 @@ import Time
 
 type alias Model =
     { 
+        flightInfo : FlightInfo
+        , isEditorVisible : Bool
+        , time : Time.Posix
+    }
+
+type alias FlightInfo =
+    { 
         flightNumber : String
         , departureAirport : String
         , arrivalAirport : String
-        , isEditorVisible : Bool
         , departureTime : (Int, Int)
         , depatureTotalMinutes : Int
         , departureIsNextUTCDay : Bool
         , gate : String
-        , time : Time.Posix
     }
 
 
@@ -61,9 +66,9 @@ viewCardSection : Model -> Html Msg
 viewCardSection model =
     section [ class "section"][
         div [ class "columns"][
-          viewHeaderCard ("FDX" ++ model.flightNumber) <| model.gate
-        , viewLinkCard <| model.departureAirport
-        , viewLinkCard <| model.arrivalAirport
+          viewHeaderCard ("FDX" ++ model.flightInfo.flightNumber) <| model.flightInfo.gate
+        , viewLinkCard <| model.flightInfo.departureAirport
+        , viewLinkCard <| model.flightInfo.arrivalAirport
         , viewClockCard  model
         ] 
     ]
@@ -73,11 +78,11 @@ viewClockCard : Model -> Html Msg
 viewClockCard model =
     let
         --time = model.departureTime |> getTimeString
-        timeToDeparture = getTimeToDeparture model.time model.depatureTotalMinutes model.departureIsNextUTCDay
-        timeString = if model.departureIsNextUTCDay then
-            (model.departureTime |> getTimeString) ++ " Z +1"
+        timeToDeparture = getTimeToDeparture model.time model.flightInfo.depatureTotalMinutes model.flightInfo.departureIsNextUTCDay
+        timeString = if model.flightInfo.departureIsNextUTCDay then
+            (model.flightInfo.departureTime |> getTimeString) ++ " Z +1"
             else
-                (model.departureTime |> getTimeString) ++ " Z"
+                (model.flightInfo.departureTime |> getTimeString) ++ " Z"
     in
     div [ class "column"][
         if timeToDeparture <= 0 then
@@ -127,19 +132,43 @@ update msg model =
         HideEditor ->
             ({ model| isEditorVisible = False } , Cmd.none )
         UpdateFlightNumber flightNumber ->
-            ({ model| flightNumber = flightNumber } , Cmd.none )
+            let 
+                fi = model.flightInfo  
+                newfi = { fi | flightNumber = flightNumber }           
+            in
+            ({ model| flightInfo = newfi } , Cmd.none )
         UpdateDepartureAirport departureAirport ->
-            ({ model| departureAirport = String.toUpper departureAirport } , Cmd.none )
+            let 
+                fi = model.flightInfo  
+                newfi = { fi | departureAirport = String.toUpper departureAirport }
+            in
+            ({ model| flightInfo = newfi} , Cmd.none )
         UpdateArrivalAirport arrivalAirport ->
-            ({ model| arrivalAirport = String.toUpper arrivalAirport } , Cmd.none )
+            let 
+                fi = model.flightInfo  
+                newfi = { fi | arrivalAirport = String.toUpper arrivalAirport }
+            in
+            ({ model| flightInfo = newfi} , Cmd.none )
         UpdateDepartureTime departureTime ->
-            ({ model| departureTime = departureTime |> getValidTime 
-            , depatureTotalMinutes = departureTime |> getValidTime |> getTotalMinutes
-            } , Cmd.none )
+            let
+                fi = model.flightInfo  
+                newfi = { fi | departureTime = (departureTime |> getValidTime )
+                    , depatureTotalMinutes = (departureTime |> getValidTime |> getTotalMinutes)
+                        }
+            in
+            ({ model| flightInfo = newfi } , Cmd.none )
         UpdateGate gate ->
-            ({ model| gate = gate } , Cmd.none )
+            let 
+                fi = model.flightInfo  
+                newfi = { fi | gate = gate }
+            in
+            ({ model| flightInfo = newfi } , Cmd.none )
         UpdateDepartureIsNextUTCDay isNextDay ->
-            ({ model| departureIsNextUTCDay = isNextDay  } , Cmd.none )
+            let 
+                fi = model.flightInfo
+                newfi = { fi | departureIsNextUTCDay = isNextDay }  
+            in
+            ({ model| flightInfo = newfi } , Cmd.none )
         Tick time ->
             ({ model| time = time } , Cmd.none )
 
@@ -149,14 +178,15 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( 
       {
-        flightNumber = "0000"
-        , departureAirport = "KMEM"
-        , arrivalAirport = "KMEM"
+        flightInfo = {  flightNumber = "0000"
+            , departureAirport = "KMEM"
+            , arrivalAirport = "KMEM"
+            , departureTime = (0,0)
+            , depatureTotalMinutes = 0
+            , departureIsNextUTCDay = False
+            , gate = "UNKN"
+          }
         , isEditorVisible = False
-        , departureTime = (0,0)
-        , depatureTotalMinutes = 0
-        , departureIsNextUTCDay = False
-        , gate = "UNKN"
         , time = Time.millisToPosix 0
       }  
     , Cmd.none

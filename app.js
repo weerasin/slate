@@ -5251,13 +5251,15 @@ var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$CheckList$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
-			arrivalAirport: 'KMEM',
-			departureAirport: 'KMEM',
-			departureIsNextUTCDay: false,
-			departureTime: _Utils_Tuple2(0, 0),
-			depatureTotalMinutes: 0,
-			flightNumber: '0000',
-			gate: 'UNKN',
+			flightInfo: {
+				arrivalAirport: 'KMEM',
+				departureAirport: 'KMEM',
+				departureIsNextUTCDay: false,
+				departureTime: _Utils_Tuple2(0, 0),
+				depatureTotalMinutes: 0,
+				flightNumber: '0000',
+				gate: 'UNKN'
+			},
 			isEditorVisible: false,
 			time: $elm$time$Time$millisToPosix(0)
 		},
@@ -5774,53 +5776,77 @@ var $author$project$CheckList$update = F2(
 					$elm$core$Platform$Cmd$none);
 			case 'UpdateFlightNumber':
 				var flightNumber = msg.a;
+				var fi = model.flightInfo;
+				var newfi = _Utils_update(
+					fi,
+					{flightNumber: flightNumber});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{flightNumber: flightNumber}),
+						{flightInfo: newfi}),
 					$elm$core$Platform$Cmd$none);
 			case 'UpdateDepartureAirport':
 				var departureAirport = msg.a;
+				var fi = model.flightInfo;
+				var newfi = _Utils_update(
+					fi,
+					{
+						departureAirport: $elm$core$String$toUpper(departureAirport)
+					});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{
-							departureAirport: $elm$core$String$toUpper(departureAirport)
-						}),
+						{flightInfo: newfi}),
 					$elm$core$Platform$Cmd$none);
 			case 'UpdateArrivalAirport':
 				var arrivalAirport = msg.a;
+				var fi = model.flightInfo;
+				var newfi = _Utils_update(
+					fi,
+					{
+						arrivalAirport: $elm$core$String$toUpper(arrivalAirport)
+					});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{
-							arrivalAirport: $elm$core$String$toUpper(arrivalAirport)
-						}),
+						{flightInfo: newfi}),
 					$elm$core$Platform$Cmd$none);
 			case 'UpdateDepartureTime':
 				var departureTime = msg.a;
+				var fi = model.flightInfo;
+				var newfi = _Utils_update(
+					fi,
+					{
+						departureTime: $author$project$CheckList$getValidTime(departureTime),
+						depatureTotalMinutes: $author$project$CheckList$getTotalMinutes(
+							$author$project$CheckList$getValidTime(departureTime))
+					});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{
-							departureTime: $author$project$CheckList$getValidTime(departureTime),
-							depatureTotalMinutes: $author$project$CheckList$getTotalMinutes(
-								$author$project$CheckList$getValidTime(departureTime))
-						}),
+						{flightInfo: newfi}),
 					$elm$core$Platform$Cmd$none);
 			case 'UpdateGate':
 				var gate = msg.a;
+				var fi = model.flightInfo;
+				var newfi = _Utils_update(
+					fi,
+					{gate: gate});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{gate: gate}),
+						{flightInfo: newfi}),
 					$elm$core$Platform$Cmd$none);
 			case 'UpdateDepartureIsNextUTCDay':
 				var isNextDay = msg.a;
+				var fi = model.flightInfo;
+				var newfi = _Utils_update(
+					fi,
+					{departureIsNextUTCDay: isNextDay});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{departureIsNextUTCDay: isNextDay}),
+						{flightInfo: newfi}),
 					$elm$core$Platform$Cmd$none);
 			default:
 				var time = msg.a;
@@ -5961,8 +5987,8 @@ var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$CheckList$viewClockCard = function (model) {
-	var timeToDeparture = A3($author$project$CheckList$getTimeToDeparture, model.time, model.depatureTotalMinutes, model.departureIsNextUTCDay);
-	var timeString = model.departureIsNextUTCDay ? ($author$project$CheckList$getTimeString(model.departureTime) + ' Z +1') : ($author$project$CheckList$getTimeString(model.departureTime) + ' Z');
+	var timeToDeparture = A3($author$project$CheckList$getTimeToDeparture, model.time, model.flightInfo.depatureTotalMinutes, model.flightInfo.departureIsNextUTCDay);
+	var timeString = model.flightInfo.departureIsNextUTCDay ? ($author$project$CheckList$getTimeString(model.flightInfo.departureTime) + ' Z +1') : ($author$project$CheckList$getTimeString(model.flightInfo.departureTime) + ' Z');
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -6107,9 +6133,9 @@ var $author$project$CheckList$viewCardSection = function (model) {
 					]),
 				_List_fromArray(
 					[
-						A2($author$project$CheckList$viewHeaderCard, 'FDX' + model.flightNumber, model.gate),
-						$author$project$CheckList$viewLinkCard(model.departureAirport),
-						$author$project$CheckList$viewLinkCard(model.arrivalAirport),
+						A2($author$project$CheckList$viewHeaderCard, 'FDX' + model.flightInfo.flightNumber, model.flightInfo.gate),
+						$author$project$CheckList$viewLinkCard(model.flightInfo.departureAirport),
+						$author$project$CheckList$viewLinkCard(model.flightInfo.arrivalAirport),
 						$author$project$CheckList$viewClockCard(model)
 					]))
 			]));
