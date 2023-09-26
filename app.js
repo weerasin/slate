@@ -4373,6 +4373,43 @@ function _Browser_load(url)
 
 
 
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
+
+
+
 function _Time_now(millisToPosix)
 {
 	return _Scheduler_binding(function(callback)
@@ -4416,43 +4453,6 @@ function _Time_getZoneName()
 		callback(_Scheduler_succeed(name));
 	});
 }
-
-
-
-var _Bitwise_and = F2(function(a, b)
-{
-	return a & b;
-});
-
-var _Bitwise_or = F2(function(a, b)
-{
-	return a | b;
-});
-
-var _Bitwise_xor = F2(function(a, b)
-{
-	return a ^ b;
-});
-
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
-
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
-{
-	return a << offset;
-});
-
-var _Bitwise_shiftRightBy = F2(function(offset, a)
-{
-	return a >> offset;
-});
-
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5242,27 +5242,184 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $author$project$CheckList$FlightInfo = F7(
+	function (flightNumber, departureAirport, arrivalAirport, departureTime, depatureTotalMinutes, departureIsNextUTCDay, gate) {
+		return {arrivalAirport: arrivalAirport, departureAirport: departureAirport, departureIsNextUTCDay: departureIsNextUTCDay, departureTime: departureTime, depatureTotalMinutes: depatureTotalMinutes, flightNumber: flightNumber, gate: gate};
+	});
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$map7 = _Json_map7;
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$CheckList$decoder = A8(
+	$elm$json$Json$Decode$map7,
+	$author$project$CheckList$FlightInfo,
+	A2($elm$json$Json$Decode$field, 'flightNumber', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'departureAirport', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'arrivalAirport', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'departureTime', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'depatureTotalMinutes', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'departureIsNextUTCDay', $elm$json$Json$Decode$bool),
+	A2($elm$json$Json$Decode$field, 'gate', $elm$json$Json$Decode$string));
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
+var $elm$core$String$repeatHelp = F3(
+	function (n, chunk, result) {
+		return (n <= 0) ? result : A3(
+			$elm$core$String$repeatHelp,
+			n >> 1,
+			_Utils_ap(chunk, chunk),
+			(!(n & 1)) ? result : _Utils_ap(result, chunk));
+	});
+var $elm$core$String$repeat = F2(
+	function (n, chunk) {
+		return A3($elm$core$String$repeatHelp, n, chunk, '');
+	});
+var $elm$core$String$padLeft = F3(
+	function (n, _char, string) {
+		return _Utils_ap(
+			A2(
+				$elm$core$String$repeat,
+				n - $elm$core$String$length(string),
+				$elm$core$String$fromChar(_char)),
+			string);
+	});
+var $author$project$CheckList$getTimeString = function (_v0) {
+	var hour = _v0.a;
+	var minute = _v0.b;
+	return _Utils_ap(
+		A3(
+			$elm$core$String$padLeft,
+			2,
+			_Utils_chr('0'),
+			$elm$core$String$fromInt(hour)),
+		A3(
+			$elm$core$String$padLeft,
+			2,
+			_Utils_chr('0'),
+			$elm$core$String$fromInt(minute)));
+};
+var $author$project$CheckList$getTotalMinutes = function (_v0) {
+	var hour = _v0.a;
+	var minute = _v0.b;
+	return (hour * 60) + minute;
+};
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$CheckList$validateMaxVal = F2(
+	function (maxVal, value) {
+		return (_Utils_cmp(value, maxVal) < 1) ? $elm$core$Maybe$Just(value) : $elm$core$Maybe$Nothing;
+	});
+var $author$project$CheckList$validateHour = function (value) {
+	return A2($author$project$CheckList$validateMaxVal, 23, value);
+};
+var $author$project$CheckList$getHour = function (value) {
+	return A2(
+		$elm$core$Maybe$andThen,
+		$author$project$CheckList$validateHour,
+		$elm$core$String$toInt(
+			A2($elm$core$String$left, 2, value)));
+};
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$String$right = F2(
+	function (n, string) {
+		return (n < 1) ? '' : A3(
+			$elm$core$String$slice,
+			-n,
+			$elm$core$String$length(string),
+			string);
+	});
+var $author$project$CheckList$validateMinute = function (value) {
+	return A2($author$project$CheckList$validateMaxVal, 59, value);
+};
+var $author$project$CheckList$getMinute = function (value) {
+	return A2(
+		$elm$core$Maybe$andThen,
+		$author$project$CheckList$validateMinute,
+		$elm$core$String$toInt(
+			A2($elm$core$String$right, 2, value)));
+};
+var $author$project$CheckList$validateLength = F2(
+	function (length, value) {
+		return _Utils_eq(
+			$elm$core$String$length(value),
+			length) ? $elm$core$Maybe$Just(value) : $elm$core$Maybe$Nothing;
+	});
+var $author$project$CheckList$validateTimeLength = function (value) {
+	return A2($author$project$CheckList$validateLength, 4, value);
+};
+var $author$project$CheckList$getValidTime = function (value) {
+	var _v0 = $author$project$CheckList$validateTimeLength(value);
+	if (_v0.$ === 'Just') {
+		var validTime = _v0.a;
+		var _v1 = _Utils_Tuple2(
+			$author$project$CheckList$getHour(validTime),
+			$author$project$CheckList$getMinute(validTime));
+		if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
+			var h = _v1.a.a;
+			var m = _v1.b.a;
+			return _Utils_Tuple2(h, m);
+		} else {
+			return _Utils_Tuple2(0, 0);
+		}
+	} else {
+		return _Utils_Tuple2(0, 0);
+	}
+};
 var $elm$time$Time$Posix = function (a) {
 	return {$: 'Posix', a: a};
 };
 var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$CheckList$init = function (_v0) {
+var $author$project$CheckList$init = function (flags) {
 	return _Utils_Tuple2(
-		{
-			flightInfo: {
-				arrivalAirport: 'KMEM',
-				departureAirport: 'KMEM',
-				departureIsNextUTCDay: false,
-				departureTime: _Utils_Tuple2(0, 0),
-				depatureTotalMinutes: 0,
-				flightNumber: '0000',
-				gate: 'UNKN'
-			},
-			isEditorVisible: false,
-			time: $elm$time$Time$millisToPosix(0)
-		},
+		function () {
+			var _v0 = A2($elm$json$Json$Decode$decodeValue, $author$project$CheckList$decoder, flags);
+			if (_v0.$ === 'Ok') {
+				var flightInfo = _v0.a;
+				var newfi = _Utils_update(
+					flightInfo,
+					{
+						depatureTotalMinutes: $author$project$CheckList$getTotalMinutes(
+							$author$project$CheckList$getValidTime(flightInfo.departureTime))
+					});
+				return {
+					flightInfo: newfi,
+					isEditorVisible: false,
+					time: $elm$time$Time$millisToPosix(0)
+				};
+			} else {
+				return {
+					flightInfo: {
+						arrivalAirport: 'KMEM',
+						departureAirport: 'KMEM',
+						departureIsNextUTCDay: false,
+						departureTime: $author$project$CheckList$getTimeString(
+							_Utils_Tuple2(0, 0)),
+						depatureTotalMinutes: 0,
+						flightNumber: '0000',
+						gate: 'UNKN'
+					},
+					isEditorVisible: false,
+					time: $elm$time$Time$millisToPosix(0)
+				};
+			}
+		}(),
 		$elm$core$Platform$Cmd$none);
 };
 var $author$project$CheckList$Tick = function (a) {
@@ -5682,82 +5839,50 @@ var $elm$time$Time$every = F2(
 var $author$project$CheckList$subscriptions = function (_v0) {
 	return A2($elm$time$Time$every, 30 * 1000, $author$project$CheckList$Tick);
 };
-var $author$project$CheckList$getTotalMinutes = function (_v0) {
-	var hour = _v0.a;
-	var minute = _v0.b;
-	return (hour * 60) + minute;
+var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$json$Json$Encode$int = _Json_wrap;
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
 };
-var $elm$core$Maybe$andThen = F2(
-	function (callback, maybeValue) {
-		if (maybeValue.$ === 'Just') {
-			var value = maybeValue.a;
-			return callback(value);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $author$project$CheckList$validateMaxVal = F2(
-	function (maxVal, value) {
-		return (_Utils_cmp(value, maxVal) < 1) ? $elm$core$Maybe$Just(value) : $elm$core$Maybe$Nothing;
-	});
-var $author$project$CheckList$validateHour = function (value) {
-	return A2($author$project$CheckList$validateMaxVal, 23, value);
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$CheckList$encode = function (fi) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'flightNumber',
+				$elm$json$Json$Encode$string(fi.flightNumber)),
+				_Utils_Tuple2(
+				'departureAirport',
+				$elm$json$Json$Encode$string(fi.departureAirport)),
+				_Utils_Tuple2(
+				'arrivalAirport',
+				$elm$json$Json$Encode$string(fi.arrivalAirport)),
+				_Utils_Tuple2(
+				'departureTime',
+				$elm$json$Json$Encode$string(fi.departureTime)),
+				_Utils_Tuple2(
+				'depatureTotalMinutes',
+				$elm$json$Json$Encode$int(0)),
+				_Utils_Tuple2(
+				'departureIsNextUTCDay',
+				$elm$json$Json$Encode$bool(fi.departureIsNextUTCDay)),
+				_Utils_Tuple2(
+				'gate',
+				$elm$json$Json$Encode$string(fi.gate))
+			]));
 };
-var $author$project$CheckList$getHour = function (value) {
-	return A2(
-		$elm$core$Maybe$andThen,
-		$author$project$CheckList$validateHour,
-		$elm$core$String$toInt(
-			A2($elm$core$String$left, 2, value)));
-};
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $elm$core$String$right = F2(
-	function (n, string) {
-		return (n < 1) ? '' : A3(
-			$elm$core$String$slice,
-			-n,
-			$elm$core$String$length(string),
-			string);
-	});
-var $author$project$CheckList$validateMinute = function (value) {
-	return A2($author$project$CheckList$validateMaxVal, 59, value);
-};
-var $author$project$CheckList$getMinute = function (value) {
-	return A2(
-		$elm$core$Maybe$andThen,
-		$author$project$CheckList$validateMinute,
-		$elm$core$String$toInt(
-			A2($elm$core$String$right, 2, value)));
-};
-var $author$project$CheckList$validateLength = F2(
-	function (length, value) {
-		return _Utils_eq(
-			$elm$core$String$length(value),
-			length) ? $elm$core$Maybe$Just(value) : $elm$core$Maybe$Nothing;
-	});
-var $author$project$CheckList$validateTimeLength = function (value) {
-	return A2($author$project$CheckList$validateLength, 4, value);
-};
-var $author$project$CheckList$getValidTime = function (value) {
-	var _v0 = $author$project$CheckList$validateTimeLength(value);
-	if (_v0.$ === 'Just') {
-		var validTime = _v0.a;
-		var _v1 = _Utils_Tuple2(
-			$author$project$CheckList$getHour(validTime),
-			$author$project$CheckList$getMinute(validTime));
-		if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
-			var h = _v1.a.a;
-			var m = _v1.b.a;
-			return _Utils_Tuple2(h, m);
-		} else {
-			return _Utils_Tuple2(0, 0);
-		}
-	} else {
-		return _Utils_Tuple2(0, 0);
-	}
-};
+var $author$project$CheckList$setStorage = _Platform_outgoingPort('setStorage', $elm$core$Basics$identity);
 var $elm$core$String$toUpper = _String_toUpper;
 var $author$project$CheckList$update = F2(
 	function (msg, model) {
@@ -5817,7 +5942,7 @@ var $author$project$CheckList$update = F2(
 				var newfi = _Utils_update(
 					fi,
 					{
-						departureTime: $author$project$CheckList$getValidTime(departureTime),
+						departureTime: departureTime,
 						depatureTotalMinutes: $author$project$CheckList$getTotalMinutes(
 							$author$project$CheckList$getValidTime(departureTime))
 					});
@@ -5857,8 +5982,23 @@ var $author$project$CheckList$update = F2(
 					$elm$core$Platform$Cmd$none);
 		}
 	});
+var $author$project$CheckList$updateWithStorage = F2(
+	function (msg, oldModel) {
+		var _v0 = A2($author$project$CheckList$update, msg, oldModel);
+		var newModel = _v0.a;
+		var cmds = _v0.b;
+		return _Utils_Tuple2(
+			newModel,
+			$elm$core$Platform$Cmd$batch(
+				_List_fromArray(
+					[
+						$author$project$CheckList$setStorage(
+						$author$project$CheckList$encode(newModel.flightInfo)),
+						cmds
+					])));
+	});
+var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -5868,48 +6008,6 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$section = _VirtualDom_node('section');
-var $elm$core$String$cons = _String_cons;
-var $elm$core$String$fromChar = function (_char) {
-	return A2($elm$core$String$cons, _char, '');
-};
-var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
-var $elm$core$String$repeatHelp = F3(
-	function (n, chunk, result) {
-		return (n <= 0) ? result : A3(
-			$elm$core$String$repeatHelp,
-			n >> 1,
-			_Utils_ap(chunk, chunk),
-			(!(n & 1)) ? result : _Utils_ap(result, chunk));
-	});
-var $elm$core$String$repeat = F2(
-	function (n, chunk) {
-		return A3($elm$core$String$repeatHelp, n, chunk, '');
-	});
-var $elm$core$String$padLeft = F3(
-	function (n, _char, string) {
-		return _Utils_ap(
-			A2(
-				$elm$core$String$repeat,
-				n - $elm$core$String$length(string),
-				$elm$core$String$fromChar(_char)),
-			string);
-	});
-var $author$project$CheckList$getTimeString = function (_v0) {
-	var hour = _v0.a;
-	var minute = _v0.b;
-	return _Utils_ap(
-		A3(
-			$elm$core$String$padLeft,
-			2,
-			_Utils_chr('0'),
-			$elm$core$String$fromInt(hour)),
-		A3(
-			$elm$core$String$padLeft,
-			2,
-			_Utils_chr('0'),
-			$elm$core$String$fromInt(minute)));
-};
 var $elm$time$Time$flooredDiv = F2(
 	function (numerator, denominator) {
 		return $elm$core$Basics$floor(numerator / denominator);
@@ -5988,7 +6086,9 @@ var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$CheckList$viewClockCard = function (model) {
 	var timeToDeparture = A3($author$project$CheckList$getTimeToDeparture, model.time, model.flightInfo.depatureTotalMinutes, model.flightInfo.departureIsNextUTCDay);
-	var timeString = model.flightInfo.departureIsNextUTCDay ? ($author$project$CheckList$getTimeString(model.flightInfo.departureTime) + ' Z +1') : ($author$project$CheckList$getTimeString(model.flightInfo.departureTime) + ' Z');
+	var timeString = model.flightInfo.departureIsNextUTCDay ? ($author$project$CheckList$getTimeString(
+		$author$project$CheckList$getValidTime(model.flightInfo.departureTime)) + ' Z +1') : ($author$project$CheckList$getTimeString(
+		$author$project$CheckList$getValidTime(model.flightInfo.departureTime)) + ' Z');
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -6193,12 +6293,10 @@ var $elm$html$Html$Attributes$maxlength = function (n) {
 		$elm$core$String$fromInt(n));
 };
 var $elm$html$Html$nav = _VirtualDom_node('nav');
-var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
 	});
-var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $elm$html$Html$Events$targetChecked = A2(
 	$elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -6223,7 +6321,6 @@ var $elm$html$Html$Events$stopPropagationOn = F2(
 			event,
 			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
 	});
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $elm$html$Html$Events$targetValue = A2(
 	$elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -6366,6 +6463,5 @@ var $author$project$CheckList$view = function (model) {
 			]));
 };
 var $author$project$CheckList$main = $elm$browser$Browser$element(
-	{init: $author$project$CheckList$init, subscriptions: $author$project$CheckList$subscriptions, update: $author$project$CheckList$update, view: $author$project$CheckList$view});
-_Platform_export({'CheckList':{'init':$author$project$CheckList$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+	{init: $author$project$CheckList$init, subscriptions: $author$project$CheckList$subscriptions, update: $author$project$CheckList$updateWithStorage, view: $author$project$CheckList$view});
+_Platform_export({'CheckList':{'init':$author$project$CheckList$main($elm$json$Json$Decode$value)(0)}});}(this));

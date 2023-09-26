@@ -1,10 +1,12 @@
-module CheckList exposing (..)
+port module CheckList exposing (..)
 
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Time
+import Json.Decode as D
+import Json.Encode as E
 --import Json.Decode exposing (bool)
 
 
@@ -20,7 +22,7 @@ type alias FlightInfo =
         flightNumber : String
         , departureAirport : String
         , arrivalAirport : String
-        , departureTime : (Int, Int)
+        , departureTime : String
         , depatureTotalMinutes : Int
         , departureIsNextUTCDay : Bool
         , gate : String
@@ -80,9 +82,9 @@ viewClockCard model =
         --time = model.departureTime |> getTimeString
         timeToDeparture = getTimeToDeparture model.time model.flightInfo.depatureTotalMinutes model.flightInfo.departureIsNextUTCDay
         timeString = if model.flightInfo.departureIsNextUTCDay then
-            (model.flightInfo.departureTime |> getTimeString) ++ " Z +1"
+            (model.flightInfo.departureTime |> getValidTime |> getTimeString) ++ " Z +1"
             else
-                (model.flightInfo.departureTime |> getTimeString) ++ " Z"
+                (model.flightInfo.departureTime |> getValidTime |> getTimeString) ++ " Z"
     in
     div [ class "column"][
         if timeToDeparture <= 0 then
@@ -120,7 +122,22 @@ type Msg
    | UpdateDepartureIsNextUTCDay Bool 
    | Tick Time.Posix
 
+port setStorage : E.Value -> Cmd msg
 
+
+-- We want to `setStorage` on every update, so this function adds
+-- the setStorage command on each step of the update function.
+--
+-- Check out index.html to see how this is handled on the JS side.
+--
+updateWithStorage : Msg -> Model -> ( Model, Cmd Msg )
+updateWithStorage msg oldModel =
+  let
+    ( newModel, cmds ) = update msg oldModel
+  in
+  ( newModel
+  , Cmd.batch [ setStorage (encode newModel.flightInfo), cmds ]
+  )
 
 
 
@@ -152,7 +169,7 @@ update msg model =
         UpdateDepartureTime departureTime ->
             let
                 fi = model.flightInfo  
-                newfi = { fi | departureTime = (departureTime |> getValidTime )
+                newfi = { fi | departureTime = departureTime
                     , depatureTotalMinutes = (departureTime |> getValidTime |> getTotalMinutes)
                         }
             in
@@ -162,11 +179,12 @@ update msg model =
                 fi = model.flightInfo  
                 newfi = { fi | gate = gate }
             in
-            ({ model| flightInfo = newfi } , Cmd.none )
+            ({ model| flightInfo =  newfi } , Cmd.none )
         UpdateDepartureIsNextUTCDay isNextDay ->
             let 
                 fi = model.flightInfo
                 newfi = { fi | departureIsNextUTCDay = isNextDay }  
+                
             in
             ({ model| flightInfo = newfi } , Cmd.none )
         Tick time ->
@@ -174,21 +192,30 @@ update msg model =
 
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+init : E.Value -> ( Model, Cmd Msg )
+init flags =
     ( 
-      {
-        flightInfo = {  flightNumber = "0000"
-            , departureAirport = "KMEM"
-            , arrivalAirport = "KMEM"
-            , departureTime = (0,0)
-            , depatureTotalMinutes = 0
-            , departureIsNextUTCDay = False
-            , gate = "UNKN"
-          }
-        , isEditorVisible = False
-        , time = Time.millisToPosix 0
-      }  
+        case D.decodeValue decoder flags of
+            Ok flightInfo ->
+                let
+                    newfi = { flightInfo | depatureTotalMinutes = (flightInfo.departureTime |> getValidTime |> getTotalMinutes) }
+                in
+                { flightInfo = newfi
+                , isEditorVisible = False
+                , time = Time.millisToPosix 0
+                }
+            Err _ ->
+                { flightInfo = {  flightNumber = "0000"
+                    , departureAirport = "KMEM"
+                    , arrivalAirport = "KMEM"
+                    , departureTime = (0,0) |> getTimeString
+                    , depatureTotalMinutes = 0
+                    , departureIsNextUTCDay = False
+                    , gate = "UNKN"
+                  }
+                , isEditorVisible = False
+                , time = Time.millisToPosix 0
+                }
     , Cmd.none
     )
 
@@ -197,12 +224,12 @@ subscriptions _ =
   Time.every (30*1000) Tick
 
 
-main : Program () Model Msg
+main : Program E.Value Model Msg
 main =
     Browser.element
         { init = init
         , view = view
-        , update = update
+        , update = updateWithStorage
         , subscriptions = subscriptions
         }
 
@@ -289,3 +316,29 @@ getTimeToDeparture currentTime departureTime isNextDay =
             currentTotalMinutes - (1440 + departureTime)  
         else
             currentTotalMinutes - departureTime
+
+
+---- JSON Decoders
+
+encode : FlightInfo -> E.Value
+encode fi =
+  E.object
+    [ ("flightNumber", E.string fi.flightNumber)
+    , ("departureAirport", E.string fi.departureAirport)
+    , ("arrivalAirport", E.string fi.arrivalAirport)
+    , ("departureTime", E.string fi.departureTime)
+    , ("depatureTotalMinutes", E.int 0)
+    , ("departureIsNextUTCDay", E.bool fi.departureIsNextUTCDay)
+    , ("gate", E.string fi.gate)
+    ]
+
+decoder : D.Decoder FlightInfo
+decoder =
+  D.map7 FlightInfo
+    (D.field "flightNumber" D.string)
+    (D.field "departureAirport" D.string)
+    (D.field "arrivalAirport" D.string)
+    (D.field "departureTime" D.string)
+    (D.field "depatureTotalMinutes" D.int)
+    (D.field "departureIsNextUTCDay" D.bool)
+    (D.field "gate" D.string)
