@@ -14,7 +14,12 @@
     <script>
       // Extract the stored data from previous sessions.
       var storedData = localStorage.getItem('myapp-model');
-      var flags = storedData ? JSON.parse(storedData) : null;
+      //var flags = storedData ? JSON.parse(storedData) : null;
+      var flags = new Object();
+      flags.currentTime = Date.now();
+      if (storedData) {
+        flags.flightInfo = JSON.parse(storedData);
+      } 
       
       var app = Elm.CheckList.init({
         node: document.getElementById("elm-app-is-loaded-here"),

@@ -5242,7 +5242,10 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $author$project$CheckList$LocalStorage = F2(
+	function (currentTime, flightInfo) {
+		return {currentTime: currentTime, flightInfo: flightInfo};
+	});
 var $author$project$CheckList$FlightInfo = F7(
 	function (flightNumber, departureAirport, arrivalAirport, departureTime, depatureTotalMinutes, departureIsNextUTCDay, gate) {
 		return {arrivalAirport: arrivalAirport, departureAirport: departureAirport, departureIsNextUTCDay: departureIsNextUTCDay, departureTime: departureTime, depatureTotalMinutes: depatureTotalMinutes, flightNumber: flightNumber, gate: gate};
@@ -5262,6 +5265,12 @@ var $author$project$CheckList$decoder = A8(
 	A2($elm$json$Json$Decode$field, 'depatureTotalMinutes', $elm$json$Json$Decode$int),
 	A2($elm$json$Json$Decode$field, 'departureIsNextUTCDay', $elm$json$Json$Decode$bool),
 	A2($elm$json$Json$Decode$field, 'gate', $elm$json$Json$Decode$string));
+var $author$project$CheckList$decodeLocalStrorage = A3(
+	$elm$json$Json$Decode$map2,
+	$author$project$CheckList$LocalStorage,
+	A2($elm$json$Json$Decode$field, 'currentTime', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'flightInfo', $author$project$CheckList$decoder));
+var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $elm$core$String$cons = _String_cons;
 var $elm$core$String$fromChar = function (_char) {
 	return A2($elm$core$String$cons, _char, '');
@@ -5389,9 +5398,10 @@ var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$CheckList$init = function (flags) {
 	return _Utils_Tuple2(
 		function () {
-			var _v0 = A2($elm$json$Json$Decode$decodeValue, $author$project$CheckList$decoder, flags);
+			var _v0 = A2($elm$json$Json$Decode$decodeValue, $author$project$CheckList$decodeLocalStrorage, flags);
 			if (_v0.$ === 'Ok') {
-				var flightInfo = _v0.a;
+				var localStorage = _v0.a;
+				var flightInfo = localStorage.flightInfo;
 				var newfi = _Utils_update(
 					flightInfo,
 					{
@@ -5401,7 +5411,7 @@ var $author$project$CheckList$init = function (flags) {
 				return {
 					flightInfo: newfi,
 					isEditorVisible: false,
-					time: $elm$time$Time$millisToPosix(0)
+					time: $elm$time$Time$millisToPosix(localStorage.currentTime)
 				};
 			} else {
 				return {
@@ -5837,7 +5847,7 @@ var $elm$time$Time$every = F2(
 			A2($elm$time$Time$Every, interval, tagger));
 	});
 var $author$project$CheckList$subscriptions = function (_v0) {
-	return A2($elm$time$Time$every, 30 * 1000, $author$project$CheckList$Tick);
+	return A2($elm$time$Time$every, 20 * 1000, $author$project$CheckList$Tick);
 };
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$json$Json$Encode$int = _Json_wrap;
@@ -5873,7 +5883,7 @@ var $author$project$CheckList$encode = function (fi) {
 				$elm$json$Json$Encode$string(fi.departureTime)),
 				_Utils_Tuple2(
 				'depatureTotalMinutes',
-				$elm$json$Json$Encode$int(0)),
+				$elm$json$Json$Encode$int(fi.depatureTotalMinutes)),
 				_Utils_Tuple2(
 				'departureIsNextUTCDay',
 				$elm$json$Json$Encode$bool(fi.departureIsNextUTCDay)),

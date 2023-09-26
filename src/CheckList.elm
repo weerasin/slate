@@ -28,6 +28,12 @@ type alias FlightInfo =
         , gate : String
     }
 
+type alias LocalStorage =
+    {   
+        currentTime : Int
+        ,flightInfo  : FlightInfo
+    }
+
 
 view : Model -> Html Msg
 view model =
@@ -195,14 +201,15 @@ update msg model =
 init : E.Value -> ( Model, Cmd Msg )
 init flags =
     ( 
-        case D.decodeValue decoder flags of
-            Ok flightInfo ->
+        case D.decodeValue decodeLocalStrorage flags of
+            Ok localStorage->
                 let
+                    flightInfo = localStorage.flightInfo
                     newfi = { flightInfo | depatureTotalMinutes = (flightInfo.departureTime |> getValidTime |> getTotalMinutes) }
                 in
                 { flightInfo = newfi
                 , isEditorVisible = False
-                , time = Time.millisToPosix 0
+                , time = localStorage.currentTime |> Time.millisToPosix
                 }
             Err _ ->
                 { flightInfo = {  flightNumber = "0000"
@@ -221,7 +228,7 @@ init flags =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-  Time.every (30*1000) Tick
+  Time.every (20*1000) Tick
 
 
 main : Program E.Value Model Msg
@@ -318,7 +325,13 @@ getTimeToDeparture currentTime departureTime isNextDay =
             currentTotalMinutes - departureTime
 
 
----- JSON Decoders
+---- JSON Decoders and Encoders
+
+decodeLocalStrorage : D.Decoder LocalStorage
+decodeLocalStrorage =
+  D.map2 LocalStorage
+    (D.field "currentTime" D.int)
+    (D.field "flightInfo" decoder)
 
 encode : FlightInfo -> E.Value
 encode fi =
@@ -327,7 +340,7 @@ encode fi =
     , ("departureAirport", E.string fi.departureAirport)
     , ("arrivalAirport", E.string fi.arrivalAirport)
     , ("departureTime", E.string fi.departureTime)
-    , ("depatureTotalMinutes", E.int 0)
+    , ("depatureTotalMinutes", E.int fi.depatureTotalMinutes)
     , ("departureIsNextUTCDay", E.bool fi.departureIsNextUTCDay)
     , ("gate", E.string fi.gate)
     ]
