@@ -5389,96 +5389,8 @@ var $author$project$CheckList$getValidTime = function (value) {
 		return _Utils_Tuple2(0, 0);
 	}
 };
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$CheckList$init = function (flags) {
-	return _Utils_Tuple2(
-		function () {
-			var _v0 = A2($elm$json$Json$Decode$decodeValue, $author$project$CheckList$decodeLocalStrorage, flags);
-			if (_v0.$ === 'Ok') {
-				var localStorage = _v0.a;
-				var flightInfo = localStorage.flightInfo;
-				var newfi = _Utils_update(
-					flightInfo,
-					{
-						depatureTotalMinutes: $author$project$CheckList$getTotalMinutes(
-							$author$project$CheckList$getValidTime(flightInfo.departureTime))
-					});
-				return {
-					flightInfo: newfi,
-					isEditorVisible: false,
-					time: $elm$time$Time$millisToPosix(localStorage.currentTime)
-				};
-			} else {
-				return {
-					flightInfo: {
-						arrivalAirport: 'KMEM',
-						departureAirport: 'KMEM',
-						departureIsNextUTCDay: false,
-						departureTime: $author$project$CheckList$getTimeString(
-							_Utils_Tuple2(0, 0)),
-						depatureTotalMinutes: 0,
-						flightNumber: '0000',
-						gate: 'UNKN'
-					},
-					isEditorVisible: false,
-					time: $elm$time$Time$millisToPosix(0)
-				};
-			}
-		}(),
-		$elm$core$Platform$Cmd$none);
-};
-var $author$project$CheckList$Tick = function (a) {
-	return {$: 'Tick', a: a};
-};
-var $elm$time$Time$Every = F2(
-	function (a, b) {
-		return {$: 'Every', a: a, b: b};
-	});
-var $elm$time$Time$State = F2(
-	function (taggers, processes) {
-		return {processes: processes, taggers: taggers};
-	});
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $elm$time$Time$init = $elm$core$Task$succeed(
-	A2($elm$time$Time$State, $elm$core$Dict$empty, $elm$core$Dict$empty));
-var $elm$core$Basics$compare = _Utils_compare;
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5539,6 +5451,7 @@ var $elm$core$Dict$balance = F5(
 			}
 		}
 	});
+var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
 		if (dict.$ === 'RBEmpty_elm_builtin') {
@@ -5585,6 +5498,144 @@ var $elm$core$Dict$insert = F3(
 		} else {
 			var x = _v0;
 			return x;
+		}
+	});
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $author$project$CheckList$initCheckList = $elm$core$Dict$fromList(
+	_List_fromArray(
+		[
+			_Utils_Tuple2('WX', false),
+			_Utils_Tuple2('WX-TOA', false),
+			_Utils_Tuple2('WX-ALT', false),
+			_Utils_Tuple2('FP-CHK', false),
+			_Utils_Tuple2('CLR', false),
+			_Utils_Tuple2('STD-FXP', false),
+			_Utils_Tuple2('FXP-1', false),
+			_Utils_Tuple2('FXP-2', false),
+			_Utils_Tuple2('FXP-3', false),
+			_Utils_Tuple2('FXP-4', false),
+			_Utils_Tuple2('FXP-5', false),
+			_Utils_Tuple2('FXP-6', false),
+			_Utils_Tuple2('FXP-7', false),
+			_Utils_Tuple2('SEC', false),
+			_Utils_Tuple2('SEC-1', false),
+			_Utils_Tuple2('SEC-2', false),
+			_Utils_Tuple2('SEC-3', false),
+			_Utils_Tuple2('SEC-4', false),
+			_Utils_Tuple2('FOM', false),
+			_Utils_Tuple2('FOM-1', false),
+			_Utils_Tuple2('FOM-2', false),
+			_Utils_Tuple2('FOM-3', false),
+			_Utils_Tuple2('FOM-4', false),
+			_Utils_Tuple2('FOM-5', false),
+			_Utils_Tuple2('FOM-6', false),
+			_Utils_Tuple2('FOM-7', false),
+			_Utils_Tuple2('DEP', false),
+			_Utils_Tuple2('DEP-1', false),
+			_Utils_Tuple2('DEP-2', false),
+			_Utils_Tuple2('PER', false),
+			_Utils_Tuple2('BFS', false),
+			_Utils_Tuple2('FNL', false),
+			_Utils_Tuple2('APU', false)
+		]));
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$CheckList$init = function (flags) {
+	return _Utils_Tuple2(
+		function () {
+			var _v0 = A2($elm$json$Json$Decode$decodeValue, $author$project$CheckList$decodeLocalStrorage, flags);
+			if (_v0.$ === 'Ok') {
+				var localStorage = _v0.a;
+				var flightInfo = localStorage.flightInfo;
+				var newfi = _Utils_update(
+					flightInfo,
+					{
+						depatureTotalMinutes: $author$project$CheckList$getTotalMinutes(
+							$author$project$CheckList$getValidTime(flightInfo.departureTime))
+					});
+				return {
+					checkListItems: $author$project$CheckList$initCheckList,
+					flightInfo: newfi,
+					isEditorVisible: false,
+					time: $elm$time$Time$millisToPosix(localStorage.currentTime)
+				};
+			} else {
+				return {
+					checkListItems: $author$project$CheckList$initCheckList,
+					flightInfo: {
+						arrivalAirport: 'KMEM',
+						departureAirport: 'KMEM',
+						departureIsNextUTCDay: false,
+						departureTime: $author$project$CheckList$getTimeString(
+							_Utils_Tuple2(0, 0)),
+						depatureTotalMinutes: 0,
+						flightNumber: '0000',
+						gate: 'UNKN'
+					},
+					isEditorVisible: false,
+					time: $elm$time$Time$millisToPosix(0)
+				};
+			}
+		}(),
+		$elm$core$Platform$Cmd$none);
+};
+var $author$project$CheckList$Tick = function (a) {
+	return {$: 'Tick', a: a};
+};
+var $elm$time$Time$Every = F2(
+	function (a, b) {
+		return {$: 'Every', a: a, b: b};
+	});
+var $elm$time$Time$State = F2(
+	function (taggers, processes) {
+		return {processes: processes, taggers: taggers};
+	});
+var $elm$time$Time$init = $elm$core$Task$succeed(
+	A2($elm$time$Time$State, $elm$core$Dict$empty, $elm$core$Dict$empty));
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
 		}
 	});
 var $elm$time$Time$addMySub = F2(
@@ -5893,7 +5944,391 @@ var $author$project$CheckList$encode = function (fi) {
 			]));
 };
 var $author$project$CheckList$setStorage = _Platform_outgoingPort('setStorage', $elm$core$Basics$identity);
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Basics$not = _Basics_not;
 var $elm$core$String$toUpper = _String_toUpper;
+var $elm$core$Dict$getMin = function (dict) {
+	getMin:
+	while (true) {
+		if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+			var left = dict.d;
+			var $temp$dict = left;
+			dict = $temp$dict;
+			continue getMin;
+		} else {
+			return dict;
+		}
+	}
+};
+var $elm$core$Dict$moveRedLeft = function (dict) {
+	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
+		if ((dict.e.d.$ === 'RBNode_elm_builtin') && (dict.e.d.a.$ === 'Red')) {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _v1 = dict.d;
+			var lClr = _v1.a;
+			var lK = _v1.b;
+			var lV = _v1.c;
+			var lLeft = _v1.d;
+			var lRight = _v1.e;
+			var _v2 = dict.e;
+			var rClr = _v2.a;
+			var rK = _v2.b;
+			var rV = _v2.c;
+			var rLeft = _v2.d;
+			var _v3 = rLeft.a;
+			var rlK = rLeft.b;
+			var rlV = rLeft.c;
+			var rlL = rLeft.d;
+			var rlR = rLeft.e;
+			var rRight = _v2.e;
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				$elm$core$Dict$Red,
+				rlK,
+				rlV,
+				A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					rlL),
+				A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, rK, rV, rlR, rRight));
+		} else {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _v4 = dict.d;
+			var lClr = _v4.a;
+			var lK = _v4.b;
+			var lV = _v4.c;
+			var lLeft = _v4.d;
+			var lRight = _v4.e;
+			var _v5 = dict.e;
+			var rClr = _v5.a;
+			var rK = _v5.b;
+			var rV = _v5.c;
+			var rLeft = _v5.d;
+			var rRight = _v5.e;
+			if (clr.$ === 'Black') {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			} else {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			}
+		}
+	} else {
+		return dict;
+	}
+};
+var $elm$core$Dict$moveRedRight = function (dict) {
+	if (((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) && (dict.e.$ === 'RBNode_elm_builtin')) {
+		if ((dict.d.d.$ === 'RBNode_elm_builtin') && (dict.d.d.a.$ === 'Red')) {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _v1 = dict.d;
+			var lClr = _v1.a;
+			var lK = _v1.b;
+			var lV = _v1.c;
+			var _v2 = _v1.d;
+			var _v3 = _v2.a;
+			var llK = _v2.b;
+			var llV = _v2.c;
+			var llLeft = _v2.d;
+			var llRight = _v2.e;
+			var lRight = _v1.e;
+			var _v4 = dict.e;
+			var rClr = _v4.a;
+			var rK = _v4.b;
+			var rV = _v4.c;
+			var rLeft = _v4.d;
+			var rRight = _v4.e;
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				$elm$core$Dict$Red,
+				lK,
+				lV,
+				A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, llK, llV, llLeft, llRight),
+				A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					lRight,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight)));
+		} else {
+			var clr = dict.a;
+			var k = dict.b;
+			var v = dict.c;
+			var _v5 = dict.d;
+			var lClr = _v5.a;
+			var lK = _v5.b;
+			var lV = _v5.c;
+			var lLeft = _v5.d;
+			var lRight = _v5.e;
+			var _v6 = dict.e;
+			var rClr = _v6.a;
+			var rK = _v6.b;
+			var rV = _v6.c;
+			var rLeft = _v6.d;
+			var rRight = _v6.e;
+			if (clr.$ === 'Black') {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			} else {
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					$elm$core$Dict$Black,
+					k,
+					v,
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, lK, lV, lLeft, lRight),
+					A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, rK, rV, rLeft, rRight));
+			}
+		}
+	} else {
+		return dict;
+	}
+};
+var $elm$core$Dict$removeHelpPrepEQGT = F7(
+	function (targetKey, dict, color, key, value, left, right) {
+		if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Red')) {
+			var _v1 = left.a;
+			var lK = left.b;
+			var lV = left.c;
+			var lLeft = left.d;
+			var lRight = left.e;
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				color,
+				lK,
+				lV,
+				lLeft,
+				A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Red, key, value, lRight, right));
+		} else {
+			_v2$2:
+			while (true) {
+				if ((right.$ === 'RBNode_elm_builtin') && (right.a.$ === 'Black')) {
+					if (right.d.$ === 'RBNode_elm_builtin') {
+						if (right.d.a.$ === 'Black') {
+							var _v3 = right.a;
+							var _v4 = right.d;
+							var _v5 = _v4.a;
+							return $elm$core$Dict$moveRedRight(dict);
+						} else {
+							break _v2$2;
+						}
+					} else {
+						var _v6 = right.a;
+						var _v7 = right.d;
+						return $elm$core$Dict$moveRedRight(dict);
+					}
+				} else {
+					break _v2$2;
+				}
+			}
+			return dict;
+		}
+	});
+var $elm$core$Dict$removeMin = function (dict) {
+	if ((dict.$ === 'RBNode_elm_builtin') && (dict.d.$ === 'RBNode_elm_builtin')) {
+		var color = dict.a;
+		var key = dict.b;
+		var value = dict.c;
+		var left = dict.d;
+		var lColor = left.a;
+		var lLeft = left.d;
+		var right = dict.e;
+		if (lColor.$ === 'Black') {
+			if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
+				var _v3 = lLeft.a;
+				return A5(
+					$elm$core$Dict$RBNode_elm_builtin,
+					color,
+					key,
+					value,
+					$elm$core$Dict$removeMin(left),
+					right);
+			} else {
+				var _v4 = $elm$core$Dict$moveRedLeft(dict);
+				if (_v4.$ === 'RBNode_elm_builtin') {
+					var nColor = _v4.a;
+					var nKey = _v4.b;
+					var nValue = _v4.c;
+					var nLeft = _v4.d;
+					var nRight = _v4.e;
+					return A5(
+						$elm$core$Dict$balance,
+						nColor,
+						nKey,
+						nValue,
+						$elm$core$Dict$removeMin(nLeft),
+						nRight);
+				} else {
+					return $elm$core$Dict$RBEmpty_elm_builtin;
+				}
+			}
+		} else {
+			return A5(
+				$elm$core$Dict$RBNode_elm_builtin,
+				color,
+				key,
+				value,
+				$elm$core$Dict$removeMin(left),
+				right);
+		}
+	} else {
+		return $elm$core$Dict$RBEmpty_elm_builtin;
+	}
+};
+var $elm$core$Dict$removeHelp = F2(
+	function (targetKey, dict) {
+		if (dict.$ === 'RBEmpty_elm_builtin') {
+			return $elm$core$Dict$RBEmpty_elm_builtin;
+		} else {
+			var color = dict.a;
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			if (_Utils_cmp(targetKey, key) < 0) {
+				if ((left.$ === 'RBNode_elm_builtin') && (left.a.$ === 'Black')) {
+					var _v4 = left.a;
+					var lLeft = left.d;
+					if ((lLeft.$ === 'RBNode_elm_builtin') && (lLeft.a.$ === 'Red')) {
+						var _v6 = lLeft.a;
+						return A5(
+							$elm$core$Dict$RBNode_elm_builtin,
+							color,
+							key,
+							value,
+							A2($elm$core$Dict$removeHelp, targetKey, left),
+							right);
+					} else {
+						var _v7 = $elm$core$Dict$moveRedLeft(dict);
+						if (_v7.$ === 'RBNode_elm_builtin') {
+							var nColor = _v7.a;
+							var nKey = _v7.b;
+							var nValue = _v7.c;
+							var nLeft = _v7.d;
+							var nRight = _v7.e;
+							return A5(
+								$elm$core$Dict$balance,
+								nColor,
+								nKey,
+								nValue,
+								A2($elm$core$Dict$removeHelp, targetKey, nLeft),
+								nRight);
+						} else {
+							return $elm$core$Dict$RBEmpty_elm_builtin;
+						}
+					}
+				} else {
+					return A5(
+						$elm$core$Dict$RBNode_elm_builtin,
+						color,
+						key,
+						value,
+						A2($elm$core$Dict$removeHelp, targetKey, left),
+						right);
+				}
+			} else {
+				return A2(
+					$elm$core$Dict$removeHelpEQGT,
+					targetKey,
+					A7($elm$core$Dict$removeHelpPrepEQGT, targetKey, dict, color, key, value, left, right));
+			}
+		}
+	});
+var $elm$core$Dict$removeHelpEQGT = F2(
+	function (targetKey, dict) {
+		if (dict.$ === 'RBNode_elm_builtin') {
+			var color = dict.a;
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			if (_Utils_eq(targetKey, key)) {
+				var _v1 = $elm$core$Dict$getMin(right);
+				if (_v1.$ === 'RBNode_elm_builtin') {
+					var minKey = _v1.b;
+					var minValue = _v1.c;
+					return A5(
+						$elm$core$Dict$balance,
+						color,
+						minKey,
+						minValue,
+						left,
+						$elm$core$Dict$removeMin(right));
+				} else {
+					return $elm$core$Dict$RBEmpty_elm_builtin;
+				}
+			} else {
+				return A5(
+					$elm$core$Dict$balance,
+					color,
+					key,
+					value,
+					left,
+					A2($elm$core$Dict$removeHelp, targetKey, right));
+			}
+		} else {
+			return $elm$core$Dict$RBEmpty_elm_builtin;
+		}
+	});
+var $elm$core$Dict$remove = F2(
+	function (key, dict) {
+		var _v0 = A2($elm$core$Dict$removeHelp, key, dict);
+		if ((_v0.$ === 'RBNode_elm_builtin') && (_v0.a.$ === 'Red')) {
+			var _v1 = _v0.a;
+			var k = _v0.b;
+			var v = _v0.c;
+			var l = _v0.d;
+			var r = _v0.e;
+			return A5($elm$core$Dict$RBNode_elm_builtin, $elm$core$Dict$Black, k, v, l, r);
+		} else {
+			var x = _v0;
+			return x;
+		}
+	});
+var $elm$core$Dict$update = F3(
+	function (targetKey, alter, dictionary) {
+		var _v0 = alter(
+			A2($elm$core$Dict$get, targetKey, dictionary));
+		if (_v0.$ === 'Just') {
+			var value = _v0.a;
+			return A3($elm$core$Dict$insert, targetKey, value, dictionary);
+		} else {
+			return A2($elm$core$Dict$remove, targetKey, dictionary);
+		}
+	});
 var $author$project$CheckList$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5983,12 +6418,24 @@ var $author$project$CheckList$update = F2(
 						model,
 						{flightInfo: newfi}),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'Tick':
 				var time = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{time: time}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				var item = msg.a;
+				var newDict = A3(
+					$elm$core$Dict$update,
+					item,
+					$elm$core$Maybe$map($elm$core$Basics$not),
+					model.checkListItems);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{checkListItems: newDict}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -6250,25 +6697,27 @@ var $author$project$CheckList$viewCardSection = function (model) {
 					]))
 			]));
 };
-var $author$project$CheckList$HideEditor = {$: 'HideEditor'};
-var $author$project$CheckList$UpdateArrivalAirport = function (a) {
-	return {$: 'UpdateArrivalAirport', a: a};
+var $elm$html$Html$ul = _VirtualDom_node('ul');
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$CheckList$getCompletedState = F2(
+	function (key, dictionary) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			false,
+			A2($elm$core$Dict$get, key, dictionary));
+	});
+var $author$project$CheckList$CheckItem = function (a) {
+	return {$: 'CheckItem', a: a};
 };
-var $author$project$CheckList$UpdateDepartureAirport = function (a) {
-	return {$: 'UpdateDepartureAirport', a: a};
-};
-var $author$project$CheckList$UpdateDepartureIsNextUTCDay = function (a) {
-	return {$: 'UpdateDepartureIsNextUTCDay', a: a};
-};
-var $author$project$CheckList$UpdateDepartureTime = function (a) {
-	return {$: 'UpdateDepartureTime', a: a};
-};
-var $author$project$CheckList$UpdateFlightNumber = function (a) {
-	return {$: 'UpdateFlightNumber', a: a};
-};
-var $author$project$CheckList$UpdateGate = function (a) {
-	return {$: 'UpdateGate', a: a};
-};
+var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -6293,6 +6742,139 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				$elm$core$List$map,
 				$elm$core$Tuple$first,
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+};
+var $elm$html$Html$li = _VirtualDom_node('li');
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $author$project$CheckList$viewCheckListItem = F4(
+	function (key, item, isSubItem, isComplete) {
+		return A2(
+			$elm$html$Html$li,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('level')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('title level-left level-item'),
+							$elm$html$Html$Attributes$classList(
+							_List_fromArray(
+								[
+									_Utils_Tuple2('is-complete', isComplete),
+									_Utils_Tuple2('is-5', isSubItem),
+									_Utils_Tuple2('is-2', !isSubItem)
+								]))
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(item)
+						])),
+					A2(
+					$elm$html$Html$span,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('level-right')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$button,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('button is-success is-small level-item'),
+									$elm$html$Html$Events$onClick(
+									$author$project$CheckList$CheckItem(key))
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('X')
+								]))
+						]))
+				]));
+	});
+var $author$project$CheckList$viewCheckListItemHelper = F4(
+	function (key, description, isSubItem, model) {
+		return A4(
+			$author$project$CheckList$viewCheckListItem,
+			key,
+			description,
+			isSubItem,
+			A2($author$project$CheckList$getCompletedState, key, model.checkListItems));
+	});
+var $author$project$CheckList$viewCheckList = function (model) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('section')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$ul,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('checklist')
+					]),
+				_List_fromArray(
+					[
+						A4($author$project$CheckList$viewCheckListItemHelper, 'WX', 'Weather', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'WX-TOA', 'Takeoff Alternate', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'WX-ALT', 'Alternate', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FP-CHK', 'Flight Plan Check', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'CLR', 'Clearance', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'STD-FXP', 'Standard FX Procedures', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FXP-1', 'LTAET', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FXP-2', 'Standard Callouts', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FXP-3', 'Sterile Cockpit', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FXP-4', 'Auto throttle/Auto Brakes', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FXP-5', 'Autopilot', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FXP-6', 'Rejected T/O', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FXP-7', 'Emergency Return', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'SEC', 'Security', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'SEC-1', 'Ops Security', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'SEC-2', 'Law Enforcement', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'SEC-3', 'Cockpit Security', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'SEC-4', 'Document Security', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM', 'FOM Briefing', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-1', 'PF', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-2', 'Company Jepp Pages', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-3', 'Specail Procedures/NOTAMS', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-4', 'MEL/CDL', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-5', 'MTOB', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-6', 'Other Abnormals', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-7', 'Threats', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'DEP', 'Departure Brief', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'DEP-1', 'E/O Procedure', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'DEP-2', 'SID/Gradient', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'PER', 'Performance Brief', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'BFS', 'Before Start Checklist', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'FNL', 'Final Wt & Bal', false, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'APU', 'APU', false, model)
+					]))
+			]));
+};
+var $author$project$CheckList$HideEditor = {$: 'HideEditor'};
+var $author$project$CheckList$UpdateArrivalAirport = function (a) {
+	return {$: 'UpdateArrivalAirport', a: a};
+};
+var $author$project$CheckList$UpdateDepartureAirport = function (a) {
+	return {$: 'UpdateDepartureAirport', a: a};
+};
+var $author$project$CheckList$UpdateDepartureIsNextUTCDay = function (a) {
+	return {$: 'UpdateDepartureIsNextUTCDay', a: a};
+};
+var $author$project$CheckList$UpdateDepartureTime = function (a) {
+	return {$: 'UpdateDepartureTime', a: a};
+};
+var $author$project$CheckList$UpdateFlightNumber = function (a) {
+	return {$: 'UpdateFlightNumber', a: a};
+};
+var $author$project$CheckList$UpdateGate = function (a) {
+	return {$: 'UpdateGate', a: a};
 };
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$label = _VirtualDom_node('label');
@@ -6469,7 +7051,8 @@ var $author$project$CheckList$view = function (model) {
 		_List_fromArray(
 			[
 				$author$project$CheckList$viewHeaderEdit(model),
-				$author$project$CheckList$viewCardSection(model)
+				$author$project$CheckList$viewCardSection(model),
+				$author$project$CheckList$viewCheckList(model)
 			]));
 };
 var $author$project$CheckList$main = $elm$browser$Browser$element(
