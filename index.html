@@ -9,25 +9,26 @@
     <style>
       .is-complete {
         text-decoration: line-through;
-      }
-      .checklist-sub-item {
-        padding-left: 30;
+        background-color: rgba(219, 214, 214, 0.961);
       }
     </style>
   </head>
-
   <body>
     <div id="elm-app-is-loaded-here"></div>    
     <script src="app.js"></script>
     <script>
       // Extract the stored data from previous sessions.
       var storedData = localStorage.getItem('myapp-model');
+      var cklistState = localStorage.getItem('cklst-state');
       //var flags = storedData ? JSON.parse(storedData) : null;
       var flags = new Object();
       flags.currentTime = Date.now();
       if (storedData) {
         flags.flightInfo = JSON.parse(storedData);
       } 
+      if (cklistState) {
+        flags.checkListItems = JSON.parse(cklistState);
+      }
       
       var app = Elm.CheckList.init({
         node: document.getElementById("elm-app-is-loaded-here"),
@@ -39,6 +40,13 @@
       app.ports.setStorage.subscribe(function(state) {
           localStorage.setItem('myapp-model', JSON.stringify(state));
       });
+
+      app.ports.saveDict.subscribe(function(state) {
+          // localStorage.setItem('myapp-model', JSON.stringify(state));
+          localStorage.setItem('cklst-state', JSON.stringify(state));
+          //console.log("saveDict" + JSON.stringify(state));
+      });
+
     </script>
   </body>
 </html>

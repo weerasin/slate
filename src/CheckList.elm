@@ -36,6 +36,7 @@ type alias FlightInfo =
 type alias LocalStorage =
     { currentTime : Int
     , flightInfo : FlightInfo
+    , checkListItems : Dict String Bool
     }
 
 
@@ -176,7 +177,14 @@ viewCheckList model =
         , ( "FNL", False )
         , ( "APU", False )
             -}
-            ul [class "checklist"] [
+            div [class "level"][
+                span [class "level-item level-right title is-6"] [text
+                 (String.fromInt (getTotalCheckedItems model.checkListItems) ++ " of " ++ String.fromInt (getTotalCheckListItems model.checkListItems))]
+                , span [class "level-item level-right"] [
+                    button [class "button is-warning is-small", onClick ResetCheckList][text "Reset"]
+                ]
+            ]
+            ,div [class "checklist"] [
             viewCheckListItemHelper "WX" "Weather" False model
             , viewCheckListItemHelper "WX-TOA" "Takeoff Alternate" True model
             , viewCheckListItemHelper "WX-ALT" "Alternate" True model
@@ -214,6 +222,15 @@ viewCheckList model =
         ]
 
 
+getTotalCheckListItems : Dict String Bool -> Int
+getTotalCheckListItems dict =
+    dict |> Dict.toList |> List.length
+
+getTotalCheckedItems : Dict String Bool -> Int  
+getTotalCheckedItems dict =
+    dict |> Dict.toList |> List.filter (\(_, value) -> value == True) |> List.length
+
+
 viewCheckListItemHelper: String -> String -> Bool -> Model-> Html Msg
 viewCheckListItemHelper key description isSubItem  model=
     viewCheckListItem key description isSubItem (getCompletedState key model.checkListItems)
@@ -221,14 +238,13 @@ viewCheckListItemHelper key description isSubItem  model=
 
 viewCheckListItem : String -> String -> Bool -> Bool -> Html Msg
 viewCheckListItem key item isSubItem isComplete =
-    li [class "level"][
-        div [ class "title level-left level-item", 
+    div [class "level mb-1", classList [( "is-complete", isComplete ) ]][
+        div [ class "title mb-2 level-left level-item", 
            classList [
-             ( "is-complete", isComplete ) 
-             , ( "is-5", isSubItem) 
-             , ( "is-2", not isSubItem)
+              ( "is-5", isSubItem) 
+             , ( "is-3", not isSubItem)
              ] ] [ text item ]
-        , span [class "level-right"] [button [class "button is-success is-small level-item" ,onClick (CheckItem key)] [text "X"]]
+        ,div [class "level-right"] [button [class "button is-success is-small level-item" ,onClick (CheckItem key)] [text "X"]]
     ]
 
 
@@ -249,9 +265,12 @@ type Msg
     | UpdateDepartureIsNextUTCDay Bool
     | Tick Time.Posix
     | CheckItem String
+    | ResetCheckList
 
 
 port setStorage : E.Value -> Cmd msg
+
+port saveDict : E.Value -> Cmd msg
 
 
 
@@ -269,7 +288,7 @@ updateWithStorage msg oldModel =
             update msg oldModel
     in
     ( newModel
-    , Cmd.batch [ setStorage (encode newModel.flightInfo), cmds ]
+    , Cmd.batch [ setStorage (encode newModel.flightInfo), saveDict (encodeDict newModel.checkListItems), cmds ]
     )
 
 
@@ -354,6 +373,9 @@ update msg model =
                     Dict.update item (Maybe.map not) model.checkListItems
             in
             ( { model | checkListItems = newDict }, Cmd.none )
+        
+        ResetCheckList ->
+            ( { model | checkListItems = initCheckList }, Cmd.none )
 
 
 init : E.Value -> ( Model, Cmd Msg )
@@ -368,7 +390,7 @@ init flags =
                     { flightInfo | depatureTotalMinutes = flightInfo.departureTime |> getValidTime |> getTotalMinutes }
             in
             { flightInfo = newfi
-            , checkListItems = initCheckList
+            , checkListItems = localStorage.checkListItems
             , isEditorVisible = False
             , time = localStorage.currentTime |> Time.millisToPosix
             }
@@ -548,9 +570,10 @@ getTimeToDeparture currentTime departureTime isNextDay =
 
 decodeLocalStrorage : D.Decoder LocalStorage
 decodeLocalStrorage =
-    D.map2 LocalStorage
+    D.map3 LocalStorage
         (D.field "currentTime" D.int)
         (D.field "flightInfo" decoder)
+        (D.field "checkListItems" decodeDict)
 
 
 encode : FlightInfo -> E.Value
@@ -576,3 +599,15 @@ decoder =
         (D.field "depatureTotalMinutes" D.int)
         (D.field "departureIsNextUTCDay" D.bool)
         (D.field "gate" D.string)
+
+
+encodeDict :  Dict String Bool -> E.Value
+encodeDict dict =
+    E.object
+        (Dict.toList dict
+            |> List.map (\( key, value ) -> ( key, E.bool value ))
+        )
+
+decodeDict : D.Decoder (Dict String Bool)
+decodeDict =
+    D.dict D.bool
