@@ -244,7 +244,7 @@ viewCheckListItem key item isSubItem isComplete =
               ( "is-5", isSubItem) 
              , ( "is-3", not isSubItem)
              ] ] [ text item ]
-        ,div [class "level-right"] [button [class "button is-success is-small level-item" ,onClick (CheckItem key)] [text "X"]]
+        ,div [class "level-right level-item"] [button [class "button is-small " ,onClick (CheckItem key)] [text "x"]]
     ]
 
 

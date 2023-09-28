@@ -6825,7 +6825,7 @@ var $author$project$CheckList$viewCheckListItem = F4(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('level-right')
+							$elm$html$Html$Attributes$class('level-right level-item')
 						]),
 					_List_fromArray(
 						[
@@ -6833,13 +6833,13 @@ var $author$project$CheckList$viewCheckListItem = F4(
 							$elm$html$Html$button,
 							_List_fromArray(
 								[
-									$elm$html$Html$Attributes$class('button is-success is-small level-item'),
+									$elm$html$Html$Attributes$class('button is-small '),
 									$elm$html$Html$Events$onClick(
 									$author$project$CheckList$CheckItem(key))
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text('X')
+									$elm$html$Html$text('x')
 								]))
 						]))
 				]));
