@@ -136,60 +136,60 @@ viewLinkCard title =
 
 viewCheckList : Model -> Html Msg
 viewCheckList model =
-    div [class "section" ]
-        [ 
-            -- div [ class "level"][
-            -- p [ class "title is-2 level-left", classList [ ( "is-complete", getCompletedState "Weather" model.checkListItems ) ] ] [ text "Weather" ]
-            -- , span [class "level-right"] [button [class "button is-success" ,onClick (CheckItem "Weather")] [text "X"]]
-            -- ]
-            {-
-            [( "WX", False )
-        , ( "WX-TOA", False )
-        , ( "WX-ALT", False )
-        , ( "FP-CHK", False )
-        , ( "CLR", False )
-        , ( "STD-FXP", False )
-        , ( "FXP-1", False )
-        , ( "FXP-2", False )
-        , ( "FXP-3", False )
-        , ( "FXP-4", False )
-        , ( "FXP-5", False )
-        , ( "FXP-6", False )
-        , ( "FXP-7", False )
-        , ( "SEC", False )
-        , ( "SEC-1", False )
-        , ( "SEC-2", False )
-        , ( "SEC-3", False )
-        , ( "SEC-4", False )
-        , ( "FOM", False )
-        , ( "FOM-1", False )
-        , ( "FOM-2", False )
-        , ( "FOM-3", False )
-        , ( "FOM-4", False )
-        , ( "FOM-5", False )
-        , ( "FOM-6", False )
-        , ( "FOM-7", False )
-        , ( "DEP", False )
-        , ( "DEP-1", False )
-        , ( "DEP-2", False )
-        , ( "PER", False )
-        , ( "BFS", False )
-        , ( "FNL", False )
-        , ( "APU", False )
-            -}
-            div [class "level"][
-                span [class "level-item level-right title is-6"] [text
-                 (String.fromInt (getTotalCheckedItems model.checkListItems) ++ " of " ++ String.fromInt (getTotalCheckListItems model.checkListItems))]
-                , span [class "level-item level-right"] [
-                    button [class "button is-warning is-small", onClick ResetCheckList][text "Reset"]
+    div [ class "section" ]
+        [ -- div [ class "level"][
+          -- p [ class "title is-2 level-left", classList [ ( "is-complete", getCompletedState "Weather" model.checkListItems ) ] ] [ text "Weather" ]
+          -- , span [class "level-right"] [button [class "button is-success" ,onClick (CheckItem "Weather")] [text "X"]]
+          -- ]
+          {-
+                 [( "WX", False )
+             , ( "WX-TOA", False )
+             , ( "WX-ALT", False )
+             , ( "FP-CHK", False )
+             , ( "CLR", False )
+             , ( "STD-FXP", False )
+             , ( "FXP-1", False )
+             , ( "FXP-2", False )
+             , ( "FXP-3", False )
+             , ( "FXP-4", False )
+             , ( "FXP-5", False )
+             , ( "FXP-6", False )
+             , ( "FXP-7", False )
+             , ( "SEC", False )
+             , ( "SEC-1", False )
+             , ( "SEC-2", False )
+             , ( "SEC-3", False )
+             , ( "SEC-4", False )
+             , ( "FOM", False )
+             , ( "FOM-1", False )
+             , ( "FOM-2", False )
+             , ( "FOM-3", False )
+             , ( "FOM-4", False )
+             , ( "FOM-5", False )
+             , ( "FOM-6", False )
+             , ( "FOM-7", False )
+             , ( "DEP", False )
+             , ( "DEP-1", False )
+             , ( "DEP-2", False )
+             , ( "PER", False )
+             , ( "BFS", False )
+             , ( "FNL", False )
+             , ( "APU", False )
+          -}
+          div [ class "level" ]
+            [ span [ class "level-item level-right title is-6" ]
+                [ text
+                    (String.fromInt (getTotalCheckedItems model.checkListItems) ++ " of " ++ String.fromInt (getTotalCheckListItems model.checkListItems))
+                ]
+            , span [ class "level-item level-right" ]
+                [ button [ class "button is-warning is-small", onClick ResetCheckList ] [ text "Reset" ]
                 ]
             ]
-            ,div [class "checklist"] [
-            viewCheckListItemHelper "WX" "Weather" False model
+        , div [ class "checklist" ]
+            [ viewCheckListItemHelper "WX" "Weather" False model
             , viewCheckListItemHelper "WX-TOA" "Takeoff Alternate" True model
             , viewCheckListItemHelper "WX-ALT" "Alternate" True model
             , viewCheckListItemHelper "FP-CHK" "Flight Plan Check" False model
-            , viewCheckListItemHelper "CLR" "Clearance" False model
             , viewCheckListItemHelper "STD-FXP" "Standard FX Procedures" False model
             , viewCheckListItemHelper "FXP-1" "LTAET" True model
             , viewCheckListItemHelper "FXP-2" "Standard Callouts" True model
@@ -211,6 +211,7 @@ viewCheckList model =
             , viewCheckListItemHelper "FOM-5" "MTOB" True model
             , viewCheckListItemHelper "FOM-6" "Other Abnormals" True model
             , viewCheckListItemHelper "FOM-7" "Threats" True model
+            , viewCheckListItemHelper "CLR" "Clearance" False model
             , viewCheckListItemHelper "DEP" "Departure Brief" False model
             , viewCheckListItemHelper "DEP-1" "E/O Procedure" True model
             , viewCheckListItemHelper "DEP-2" "SID/Gradient" True model
@@ -219,6 +220,12 @@ viewCheckList model =
             , viewCheckListItemHelper "FNL" "Final Wt & Bal" False model
             , viewCheckListItemHelper "APU" "APU" False model
             ]
+        , div [ class "level" ]
+            [ span [ class "level-item has-text-centered title is-6" ]
+                [ text
+                    (String.fromInt (getTotalCheckedItems model.checkListItems) ++ " of " ++ String.fromInt (getTotalCheckListItems model.checkListItems))
+                ]
+            ]
         ]
 
 
@@ -226,27 +233,30 @@ getTotalCheckListItems : Dict String Bool -> Int
 getTotalCheckListItems dict =
     dict |> Dict.toList |> List.length
 
-getTotalCheckedItems : Dict String Bool -> Int  
+
+getTotalCheckedItems : Dict String Bool -> Int
 getTotalCheckedItems dict =
-    dict |> Dict.toList |> List.filter (\(_, value) -> value == True) |> List.length
+    dict |> Dict.toList |> List.filter (\( _, value ) -> value == True) |> List.length
 
 
-viewCheckListItemHelper: String -> String -> Bool -> Model-> Html Msg
-viewCheckListItemHelper key description isSubItem  model=
+viewCheckListItemHelper : String -> String -> Bool -> Model -> Html Msg
+viewCheckListItemHelper key description isSubItem model =
     viewCheckListItem key description isSubItem (getCompletedState key model.checkListItems)
 
 
 viewCheckListItem : String -> String -> Bool -> Bool -> Html Msg
 viewCheckListItem key item isSubItem isComplete =
-    div [class "level mb-1", classList [( "is-complete", isComplete ) ]][
-        div [ class "title mb-2 level-left level-item", 
-           classList [
-              ( "is-5", isSubItem) 
-             , ( "is-3", not isSubItem)
-             ] ] [ text item ]
-        ,div [class "level-right level-item"] [button [class "button is-small " ,onClick (CheckItem key)] [text "x"]]
-    ]
-
+    div [ class "level mb-1", classList [ ( "is-complete", isComplete ) ] ]
+        [ div
+            [ class "title mb-2 level-left level-item"
+            , classList
+                [ ( "is-5", isSubItem )
+                , ( "is-3", not isSubItem )
+                ]
+            ]
+            [ text item ]
+        , div [ class "level-right level-item" ] [ button [ class "button is-small ", onClick (CheckItem key) ] [ text "x" ] ]
+        ]
 
 
 getCompletedState : String -> Dict String Bool -> Bool
@@ -269,6 +279,7 @@ type Msg
 
 
 port setStorage : E.Value -> Cmd msg
+
 
 port saveDict : E.Value -> Cmd msg
 
@@ -366,14 +377,14 @@ update msg model =
 
         Tick time ->
             ( { model | time = time }, Cmd.none )
-        
+
         CheckItem item ->
             let
                 newDict =
                     Dict.update item (Maybe.map not) model.checkListItems
             in
             ( { model | checkListItems = newDict }, Cmd.none )
-        
+
         ResetCheckList ->
             ( { model | checkListItems = initCheckList }, Cmd.none )
 
@@ -601,12 +612,13 @@ decoder =
         (D.field "gate" D.string)
 
 
-encodeDict :  Dict String Bool -> E.Value
+encodeDict : Dict String Bool -> E.Value
 encodeDict dict =
     E.object
         (Dict.toList dict
             |> List.map (\( key, value ) -> ( key, E.bool value ))
         )
+
 
 decodeDict : D.Decoder (Dict String Bool)
 decodeDict =

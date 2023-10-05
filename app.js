@@ -6916,7 +6916,6 @@ var $author$project$CheckList$viewCheckList = function (model) {
 						A4($author$project$CheckList$viewCheckListItemHelper, 'WX-TOA', 'Takeoff Alternate', true, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'WX-ALT', 'Alternate', true, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'FP-CHK', 'Flight Plan Check', false, model),
-						A4($author$project$CheckList$viewCheckListItemHelper, 'CLR', 'Clearance', false, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'STD-FXP', 'Standard FX Procedures', false, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'FXP-1', 'LTAET', true, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'FXP-2', 'Standard Callouts', true, model),
@@ -6938,6 +6937,7 @@ var $author$project$CheckList$viewCheckList = function (model) {
 						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-5', 'MTOB', true, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-6', 'Other Abnormals', true, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'FOM-7', 'Threats', true, model),
+						A4($author$project$CheckList$viewCheckListItemHelper, 'CLR', 'Clearance', false, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'DEP', 'Departure Brief', false, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'DEP-1', 'E/O Procedure', true, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'DEP-2', 'SID/Gradient', true, model),
@@ -6945,6 +6945,28 @@ var $author$project$CheckList$viewCheckList = function (model) {
 						A4($author$project$CheckList$viewCheckListItemHelper, 'BFS', 'Before Start Checklist', false, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'FNL', 'Final Wt & Bal', false, model),
 						A4($author$project$CheckList$viewCheckListItemHelper, 'APU', 'APU', false, model)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('level')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$span,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('level-item has-text-centered title is-6')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								$elm$core$String$fromInt(
+									$author$project$CheckList$getTotalCheckedItems(model.checkListItems)) + (' of ' + $elm$core$String$fromInt(
+									$author$project$CheckList$getTotalCheckListItems(model.checkListItems))))
+							]))
 					]))
 			]));
 };
