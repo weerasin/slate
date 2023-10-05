@@ -27,6 +27,7 @@ type alias FlightInfo =
     , departureAirport : String
     , arrivalAirport : String
     , departureTime : String
+    , arrivalTime : String
     , depatureTotalMinutes : Int
     , departureIsNextUTCDay : Bool
     , gate : String
@@ -70,6 +71,14 @@ viewHeaderEdit model =
                 , onInput UpdateDepartureTime
                 ]
                 []
+            , input
+                [ class "input"
+                , type_ "number"
+                , maxlength 4
+                , placeholder "Arrival Time"
+                , onInput UpdateArrivalTime
+                ]
+                []
             , label [ class "checkbox" ]
                 [ text ""
                 , input [ class "input", type_ "checkbox", onCheck UpdateDepartureIsNextUTCDay ] []
@@ -84,8 +93,8 @@ viewCardSection model =
     section [ class "section" ]
         [ div [ class "columns" ]
             [ viewHeaderCard ("FDX" ++ model.flightInfo.flightNumber) <| model.flightInfo.gate
-            , viewLinkCard <| model.flightInfo.departureAirport
-            , viewLinkCard <| model.flightInfo.arrivalAirport
+            , viewLinkCard model.flightInfo.departureAirport model.flightInfo.departureTime model.flightInfo.departureIsNextUTCDay
+            , viewLinkCard model.flightInfo.arrivalAirport model.flightInfo.arrivalTime model.flightInfo.departureIsNextUTCDay
             , viewClockCard model
             ]
         ]
@@ -97,13 +106,6 @@ viewClockCard model =
         --time = model.departureTime |> getTimeString
         timeToDeparture =
             getTimeToDeparture model.time model.flightInfo.depatureTotalMinutes model.flightInfo.departureIsNextUTCDay
-
-        timeString =
-            if model.flightInfo.departureIsNextUTCDay then
-                (model.flightInfo.departureTime |> getValidTime |> getTimeString) ++ " Z +1"
-
-            else
-                (model.flightInfo.departureTime |> getValidTime |> getTimeString) ++ " Z"
     in
     div [ class "column" ]
         [ if timeToDeparture <= 0 then
@@ -111,7 +113,6 @@ viewClockCard model =
 
           else
             p [ class "title", style "color" "red" ] [ text ("T+" ++ String.fromInt timeToDeparture) ]
-        , p [ class "subtitle" ] [ text timeString ]
         ]
 
 
@@ -123,14 +124,24 @@ viewHeaderCard title gate =
         ]
 
 
-viewLinkCard : String -> Html Msg
-viewLinkCard title =
+viewLinkCard : String -> String -> Bool -> Html Msg
+viewLinkCard title time isNextDay =
     let
         linkUrl =
             "https://www.aviationweather.gov/taf/board?ids=" ++ title ++ "&date=&submit=Goto+TAF+board"
+
+        timeString =
+            if isNextDay then
+                (time |> getValidTime |> getTimeString) ++ " Z +1"
+
+            else
+                (time |> getValidTime |> getTimeString) ++ " Z"
     in
     div [ class "column" ]
-        [ a [ class "title", href linkUrl, target "_blank" ] [ text title ]
+        [ div []
+            [ a [ class "title", href linkUrl, target "_blank" ] [ text title ]
+            ]
+        , p [ class "subtitle" ] [ text timeString ]
         ]
 
 
@@ -223,7 +234,7 @@ viewCheckList model =
         , div [ class "level" ]
             [ span [ class "level-item has-text-centered title is-6" ]
                 [ text
-                    (String.fromInt (getTotalCheckedItems model.checkListItems) ++ " of " ++ String.fromInt (getTotalCheckListItems model.checkListItems))
+                    (String.fromInt (getTotalCheckListItems model.checkListItems - getTotalCheckedItems model.checkListItems) ++ " items left.")
                 ]
             ]
         ]
@@ -271,6 +282,7 @@ type Msg
     | UpdateDepartureAirport String
     | UpdateArrivalAirport String
     | UpdateDepartureTime String
+    | UpdateArrivalTime String
     | UpdateGate String
     | UpdateDepartureIsNextUTCDay Bool
     | Tick Time.Posix
@@ -355,6 +367,16 @@ update msg model =
             in
             ( { model | flightInfo = newfi }, Cmd.none )
 
+        UpdateArrivalTime arrivalTime ->
+            let
+                fi =
+                    model.flightInfo
+
+                newfi =
+                    { fi | arrivalTime = arrivalTime }
+            in
+            ( { model | flightInfo = newfi }, Cmd.none )
+
         UpdateGate gate ->
             let
                 fi =
@@ -412,6 +434,7 @@ init flags =
                 , departureAirport = "KMEM"
                 , arrivalAirport = "KMEM"
                 , departureTime = ( 0, 0 ) |> getTimeString
+                , arrivalTime = ( 0, 0 ) |> getTimeString
                 , depatureTotalMinutes = 0
                 , departureIsNextUTCDay = False
                 , gate = "UNKN"
@@ -465,7 +488,7 @@ initCheckList =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Time.every (20 * 1000) Tick
+    Time.every (60 * 1000) Tick
 
 
 main : Program E.Value Model Msg
@@ -594,6 +617,7 @@ encode fi =
         , ( "departureAirport", E.string fi.departureAirport )
         , ( "arrivalAirport", E.string fi.arrivalAirport )
         , ( "departureTime", E.string fi.departureTime )
+        , ( "arrivalTime", E.string fi.arrivalTime )
         , ( "depatureTotalMinutes", E.int fi.depatureTotalMinutes )
         , ( "departureIsNextUTCDay", E.bool fi.departureIsNextUTCDay )
         , ( "gate", E.string fi.gate )
@@ -602,11 +626,12 @@ encode fi =
 
 decoder : D.Decoder FlightInfo
 decoder =
-    D.map7 FlightInfo
+    D.map8 FlightInfo
         (D.field "flightNumber" D.string)
         (D.field "departureAirport" D.string)
         (D.field "arrivalAirport" D.string)
         (D.field "departureTime" D.string)
+        (D.field "arrivalTime" D.string)
         (D.field "depatureTotalMinutes" D.int)
         (D.field "departureIsNextUTCDay" D.bool)
         (D.field "gate" D.string)

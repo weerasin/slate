@@ -5378,21 +5378,22 @@ var $elm$json$Json$Decode$dict = function (decoder) {
 		$elm$json$Json$Decode$keyValuePairs(decoder));
 };
 var $author$project$CheckList$decodeDict = $elm$json$Json$Decode$dict($elm$json$Json$Decode$bool);
-var $author$project$CheckList$FlightInfo = F7(
-	function (flightNumber, departureAirport, arrivalAirport, departureTime, depatureTotalMinutes, departureIsNextUTCDay, gate) {
-		return {arrivalAirport: arrivalAirport, departureAirport: departureAirport, departureIsNextUTCDay: departureIsNextUTCDay, departureTime: departureTime, depatureTotalMinutes: depatureTotalMinutes, flightNumber: flightNumber, gate: gate};
+var $author$project$CheckList$FlightInfo = F8(
+	function (flightNumber, departureAirport, arrivalAirport, departureTime, arrivalTime, depatureTotalMinutes, departureIsNextUTCDay, gate) {
+		return {arrivalAirport: arrivalAirport, arrivalTime: arrivalTime, departureAirport: departureAirport, departureIsNextUTCDay: departureIsNextUTCDay, departureTime: departureTime, depatureTotalMinutes: depatureTotalMinutes, flightNumber: flightNumber, gate: gate};
 	});
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $elm$json$Json$Decode$map7 = _Json_map7;
+var $elm$json$Json$Decode$map8 = _Json_map8;
 var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$CheckList$decoder = A8(
-	$elm$json$Json$Decode$map7,
+var $author$project$CheckList$decoder = A9(
+	$elm$json$Json$Decode$map8,
 	$author$project$CheckList$FlightInfo,
 	A2($elm$json$Json$Decode$field, 'flightNumber', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'departureAirport', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'arrivalAirport', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'departureTime', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'arrivalTime', $elm$json$Json$Decode$string),
 	A2($elm$json$Json$Decode$field, 'depatureTotalMinutes', $elm$json$Json$Decode$int),
 	A2($elm$json$Json$Decode$field, 'departureIsNextUTCDay', $elm$json$Json$Decode$bool),
 	A2($elm$json$Json$Decode$field, 'gate', $elm$json$Json$Decode$string));
@@ -5589,6 +5590,8 @@ var $author$project$CheckList$init = function (flags) {
 					checkListItems: $author$project$CheckList$initCheckList,
 					flightInfo: {
 						arrivalAirport: 'KMEM',
+						arrivalTime: $author$project$CheckList$getTimeString(
+							_Utils_Tuple2(0, 0)),
 						departureAirport: 'KMEM',
 						departureIsNextUTCDay: false,
 						departureTime: $author$project$CheckList$getTimeString(
@@ -5908,7 +5911,7 @@ var $elm$time$Time$every = F2(
 			A2($elm$time$Time$Every, interval, tagger));
 	});
 var $author$project$CheckList$subscriptions = function (_v0) {
-	return A2($elm$time$Time$every, 20 * 1000, $author$project$CheckList$Tick);
+	return A2($elm$time$Time$every, 60 * 1000, $author$project$CheckList$Tick);
 };
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$json$Json$Encode$int = _Json_wrap;
@@ -5942,6 +5945,9 @@ var $author$project$CheckList$encode = function (fi) {
 				_Utils_Tuple2(
 				'departureTime',
 				$elm$json$Json$Encode$string(fi.departureTime)),
+				_Utils_Tuple2(
+				'arrivalTime',
+				$elm$json$Json$Encode$string(fi.arrivalTime)),
 				_Utils_Tuple2(
 				'depatureTotalMinutes',
 				$elm$json$Json$Encode$int(fi.depatureTotalMinutes)),
@@ -6420,6 +6426,17 @@ var $author$project$CheckList$update = F2(
 						model,
 						{flightInfo: newfi}),
 					$elm$core$Platform$Cmd$none);
+			case 'UpdateArrivalTime':
+				var arrivalTime = msg.a;
+				var fi = model.flightInfo;
+				var newfi = _Utils_update(
+					fi,
+					{arrivalTime: arrivalTime});
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{flightInfo: newfi}),
+					$elm$core$Platform$Cmd$none);
 			case 'UpdateGate':
 				var gate = msg.a;
 				var fi = model.flightInfo;
@@ -6575,9 +6592,6 @@ var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$CheckList$viewClockCard = function (model) {
 	var timeToDeparture = A3($author$project$CheckList$getTimeToDeparture, model.time, model.flightInfo.depatureTotalMinutes, model.flightInfo.departureIsNextUTCDay);
-	var timeString = model.flightInfo.departureIsNextUTCDay ? ($author$project$CheckList$getTimeString(
-		$author$project$CheckList$getValidTime(model.flightInfo.departureTime)) + ' Z +1') : ($author$project$CheckList$getTimeString(
-		$author$project$CheckList$getValidTime(model.flightInfo.departureTime)) + ' Z');
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -6608,16 +6622,6 @@ var $author$project$CheckList$viewClockCard = function (model) {
 					[
 						$elm$html$Html$text(
 						'T+' + $elm$core$String$fromInt(timeToDeparture))
-					])),
-				A2(
-				$elm$html$Html$p,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('subtitle')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(timeString)
 					]))
 			]));
 };
@@ -6681,30 +6685,50 @@ var $elm$html$Html$Attributes$href = function (url) {
 		_VirtualDom_noJavaScriptUri(url));
 };
 var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
-var $author$project$CheckList$viewLinkCard = function (title) {
-	var linkUrl = 'https://www.aviationweather.gov/taf/board?ids=' + (title + '&date=&submit=Goto+TAF+board');
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('column')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$a,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('title'),
-						$elm$html$Html$Attributes$href(linkUrl),
-						$elm$html$Html$Attributes$target('_blank')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(title)
-					]))
-			]));
-};
+var $author$project$CheckList$viewLinkCard = F3(
+	function (title, time, isNextDay) {
+		var timeString = isNextDay ? ($author$project$CheckList$getTimeString(
+			$author$project$CheckList$getValidTime(time)) + ' Z +1') : ($author$project$CheckList$getTimeString(
+			$author$project$CheckList$getValidTime(time)) + ' Z');
+		var linkUrl = 'https://www.aviationweather.gov/taf/board?ids=' + (title + '&date=&submit=Goto+TAF+board');
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('column')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$a,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('title'),
+									$elm$html$Html$Attributes$href(linkUrl),
+									$elm$html$Html$Attributes$target('_blank')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text(title)
+								]))
+						])),
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('subtitle')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(timeString)
+						]))
+				]));
+	});
 var $author$project$CheckList$viewCardSection = function (model) {
 	return A2(
 		$elm$html$Html$section,
@@ -6723,8 +6747,8 @@ var $author$project$CheckList$viewCardSection = function (model) {
 				_List_fromArray(
 					[
 						A2($author$project$CheckList$viewHeaderCard, 'FDX' + model.flightInfo.flightNumber, model.flightInfo.gate),
-						$author$project$CheckList$viewLinkCard(model.flightInfo.departureAirport),
-						$author$project$CheckList$viewLinkCard(model.flightInfo.arrivalAirport),
+						A3($author$project$CheckList$viewLinkCard, model.flightInfo.departureAirport, model.flightInfo.departureTime, model.flightInfo.departureIsNextUTCDay),
+						A3($author$project$CheckList$viewLinkCard, model.flightInfo.arrivalAirport, model.flightInfo.arrivalTime, model.flightInfo.departureIsNextUTCDay),
 						$author$project$CheckList$viewClockCard(model)
 					]))
 			]));
@@ -6964,8 +6988,7 @@ var $author$project$CheckList$viewCheckList = function (model) {
 							[
 								$elm$html$Html$text(
 								$elm$core$String$fromInt(
-									$author$project$CheckList$getTotalCheckedItems(model.checkListItems)) + (' of ' + $elm$core$String$fromInt(
-									$author$project$CheckList$getTotalCheckListItems(model.checkListItems))))
+									$author$project$CheckList$getTotalCheckListItems(model.checkListItems) - $author$project$CheckList$getTotalCheckedItems(model.checkListItems)) + ' items left.')
 							]))
 					]))
 			]));
@@ -6973,6 +6996,9 @@ var $author$project$CheckList$viewCheckList = function (model) {
 var $author$project$CheckList$HideEditor = {$: 'HideEditor'};
 var $author$project$CheckList$UpdateArrivalAirport = function (a) {
 	return {$: 'UpdateArrivalAirport', a: a};
+};
+var $author$project$CheckList$UpdateArrivalTime = function (a) {
+	return {$: 'UpdateArrivalTime', a: a};
 };
 var $author$project$CheckList$UpdateDepartureAirport = function (a) {
 	return {$: 'UpdateDepartureAirport', a: a};
@@ -7123,6 +7149,17 @@ var $author$project$CheckList$viewHeaderEdit = function (model) {
 								$elm$html$Html$Attributes$maxlength(4),
 								$elm$html$Html$Attributes$placeholder('Departure Time'),
 								$elm$html$Html$Events$onInput($author$project$CheckList$UpdateDepartureTime)
+							]),
+						_List_Nil),
+						A2(
+						$elm$html$Html$input,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('input'),
+								$elm$html$Html$Attributes$type_('number'),
+								$elm$html$Html$Attributes$maxlength(4),
+								$elm$html$Html$Attributes$placeholder('Arrival Time'),
+								$elm$html$Html$Events$onInput($author$project$CheckList$UpdateArrivalTime)
 							]),
 						_List_Nil),
 						A2(
