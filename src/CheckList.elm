@@ -7,6 +7,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode as D
 import Json.Encode as E
+import Round as R exposing (round)
 import Time
 
 
@@ -106,6 +107,9 @@ viewClockCard model =
         --time = model.departureTime |> getTimeString
         timeToDeparture =
             getTimeToDeparture model.time model.flightInfo.depatureTotalMinutes model.flightInfo.departureIsNextUTCDay
+
+        timeToDepartureHours =
+            toFloat timeToDeparture / 60 |> toFixed 2
     in
     div [ class "column" ]
         [ if timeToDeparture <= 0 then
@@ -113,6 +117,7 @@ viewClockCard model =
 
           else
             p [ class "title", style "color" "red" ] [ text ("T+" ++ String.fromInt timeToDeparture) ]
+        , p [ class "subtitle" ] [ text (timeToDepartureHours ++ " Hours") ]
         ]
 
 
@@ -648,3 +653,8 @@ encodeDict dict =
 decodeDict : D.Decoder (Dict String Bool)
 decodeDict =
     D.dict D.bool
+
+
+toFixed : Int -> Float -> String
+toFixed decimalPlaces float =
+    R.round decimalPlaces float
