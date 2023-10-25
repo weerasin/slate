@@ -133,7 +133,7 @@ viewLinkCard : String -> String -> Bool -> Html Msg
 viewLinkCard title time isNextDay =
     let
         linkUrl =
-            "https://www.aviationweather.gov/taf/board?ids=" ++ title ++ "&date=&submit=Goto+TAF+board"
+            "https://aviationweather.gov/impactboard/?id=" ++ title ++ "&rwywind=both"
 
         timeString =
             if isNextDay then
